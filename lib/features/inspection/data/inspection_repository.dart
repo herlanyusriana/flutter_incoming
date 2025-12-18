@@ -14,11 +14,13 @@ class InspectionRepository {
   Future<void> submit({
     required int arrivalId,
     required String status,
+    required String? sealCode,
     required String? notes,
     required File? photoLeft,
     required File? photoRight,
     required File? photoFront,
     required File? photoBack,
+    required File? photoInside,
     required List<String> issuesLeft,
     required List<String> issuesRight,
     required List<String> issuesFront,
@@ -28,6 +30,7 @@ class InspectionRepository {
       '/api/arrivals/$arrivalId/inspection',
       fields: {
         'status': status,
+        if (sealCode != null) 'seal_code': sealCode,
         if (notes != null) 'notes': notes,
       },
       listFields: {
@@ -41,6 +44,7 @@ class InspectionRepository {
         'photo_right': photoRight,
         'photo_front': photoFront,
         'photo_back': photoBack,
+        'photo_inside': photoInside,
       },
     );
   }
@@ -60,11 +64,18 @@ class ArrivalWithInspection {
 }
 
 class ArrivalInfo {
-  ArrivalInfo({required this.id, required this.invoiceNo, required this.arrivalNo, required this.containerNumbers});
+  ArrivalInfo({
+    required this.id,
+    required this.invoiceNo,
+    required this.arrivalNo,
+    required this.containerNumbers,
+    required this.sealCode,
+  });
   final int id;
   final String invoiceNo;
   final String arrivalNo;
   final String? containerNumbers;
+  final String? sealCode;
 
   factory ArrivalInfo.fromJson(Map<String, dynamic> json) {
     return ArrivalInfo(
@@ -72,6 +83,7 @@ class ArrivalInfo {
       invoiceNo: (json['invoice_no'] as String?) ?? '-',
       arrivalNo: (json['arrival_no'] as String?) ?? '-',
       containerNumbers: json['container_numbers'] as String?,
+      sealCode: json['seal_code'] as String?,
     );
   }
 }
@@ -83,6 +95,11 @@ class Inspection {
     required this.issuesRight,
     required this.issuesFront,
     required this.issuesBack,
+    required this.photoLeftUrl,
+    required this.photoRightUrl,
+    required this.photoFrontUrl,
+    required this.photoBackUrl,
+    required this.photoInsideUrl,
   });
 
   final String? notes;
@@ -90,6 +107,11 @@ class Inspection {
   final List<String> issuesRight;
   final List<String> issuesFront;
   final List<String> issuesBack;
+  final String? photoLeftUrl;
+  final String? photoRightUrl;
+  final String? photoFrontUrl;
+  final String? photoBackUrl;
+  final String? photoInsideUrl;
 
   factory Inspection.fromJson(Map<String, dynamic> json) {
     return Inspection(
@@ -98,7 +120,11 @@ class Inspection {
       issuesRight: ((json['issues_right'] as List?) ?? const []).cast<String>(),
       issuesFront: ((json['issues_front'] as List?) ?? const []).cast<String>(),
       issuesBack: ((json['issues_back'] as List?) ?? const []).cast<String>(),
+      photoLeftUrl: json['photo_left_url'] as String?,
+      photoRightUrl: json['photo_right_url'] as String?,
+      photoFrontUrl: json['photo_front_url'] as String?,
+      photoBackUrl: json['photo_back_url'] as String?,
+      photoInsideUrl: json['photo_inside_url'] as String?,
     );
   }
 }
-

@@ -44,11 +44,15 @@ class _InspectionView extends StatefulWidget {
 }
 
 class _InspectionViewState extends State<_InspectionView> {
+  final _sealCodeController = TextEditingController();
   final _notesController = TextEditingController();
+  bool _didInitSealCode = false;
   bool _didInitNotes = false;
+  InspectionSide _issueSide = InspectionSide.front;
 
   @override
   void dispose() {
+    _sealCodeController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -65,92 +69,72 @@ class _InspectionViewState extends State<_InspectionView> {
     return key.replaceAll('_', ' ');
   }
 
-  String _sideLabel(InspectionSide side) {
-    return switch (side) {
-      InspectionSide.left => 'Kiri (Left)',
-      InspectionSide.right => 'Kanan (Right)',
-      InspectionSide.front => 'Depan (Front)',
-      InspectionSide.back => 'Belakang (Back)',
-    };
-  }
-
-  Widget _sideCard({
-    required BuildContext context,
-    required InspectionSide side,
-    required File? photo,
-    required List<String> selectedIssues,
+  Widget _photoTile({
+    required String label,
+    required VoidCallback onTap,
+    required File? localFile,
+    required String? remoteUrl,
   }) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: onTap,
+      child: Ink(
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Stack(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    _sideLabel(side),
-                    style: const TextStyle(fontWeight: FontWeight.w800),
-                  ),
-                ),
-              ],
+            Positioned.fill(
+              child: localFile != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.file(localFile, width: double.infinity, fit: BoxFit.cover),
+                    )
+                  : (remoteUrl != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Image.network(remoteUrl, width: double.infinity, fit: BoxFit.cover),
+                        )
+                      : const Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.photo_camera_rounded, color: Color(0xFF2563EB), size: 26),
+                              SizedBox(height: 8),
+                              Text('Tap untuk ambil foto', style: TextStyle(color: Color(0xFF475569))),
+                            ],
+                          ),
+                        )),
             ),
-            const SizedBox(height: 10),
-            InkWell(
-              borderRadius: BorderRadius.circular(14),
-              onTap: () => _takePhoto(side),
-              child: Ink(
-                height: 160,
+            Positioned(
+              left: 10,
+              top: 10,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(14),
+                  color: Colors.white.withValues(alpha: 0.92),
+                  borderRadius: BorderRadius.circular(999),
                   border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
-                child: photo == null
-                    ? const Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.photo_camera_rounded, color: Color(0xFF2563EB), size: 28),
-                            SizedBox(height: 8),
-                            Text('Tap untuk ambil foto', style: TextStyle(color: Color(0xFF475569))),
-                          ],
-                        ),
-                      )
-                    : ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Image.file(photo, width: double.infinity, fit: BoxFit.cover),
-                      ),
+                child: Text(label, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
               ),
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: kIssueOptions.map((opt) {
-                final selected = selectedIssues.contains(opt);
-                return FilterChip(
-                  label: Text(
-                    _issueLabel(opt),
-                    style: TextStyle(
-                      color: selected ? Colors.white : const Color(0xFF334155),
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  selected: selected,
-                  showCheckmark: false,
-                  backgroundColor: Colors.white,
-                  selectedColor: const Color(0xFF2563EB),
-                  side: BorderSide(color: selected ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0)),
-                  onSelected: (_) => context.read<InspectionCubit>().toggleIssue(side, opt),
-                );
-              }).toList(),
             ),
           ],
         ),
       ),
     );
+  }
+
+  List<String> _issuesFor(InspectionReady s, InspectionSide side) {
+    return switch (side) {
+      InspectionSide.left => s.issuesLeft,
+      InspectionSide.right => s.issuesRight,
+      InspectionSide.front => s.issuesFront,
+      InspectionSide.back => s.issuesBack,
+      InspectionSide.inside => const [],
+    };
   }
 
   @override
@@ -175,6 +159,10 @@ class _InspectionViewState extends State<_InspectionView> {
         final s = state as InspectionReady;
         final title = '${s.arrival.invoiceNo} • ${s.arrival.arrivalNo}';
 
+        if (!_didInitSealCode) {
+          _sealCodeController.text = s.sealCode;
+          _didInitSealCode = true;
+        }
         if (!_didInitNotes) {
           _notesController.text = s.notes;
           _didInitNotes = true;
@@ -198,13 +186,148 @@ class _InspectionViewState extends State<_InspectionView> {
                       child: Text(s.error!, style: const TextStyle(color: Color(0xFFB91C1C))),
                     ),
                   if (s.error != null) const SizedBox(height: 12),
-                  _sideCard(context: context, side: InspectionSide.left, photo: s.photoLeft, selectedIssues: s.issuesLeft),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: TextField(
+                        controller: _sealCodeController,
+                        onChanged: context.read<InspectionCubit>().setSealCode,
+                        textCapitalization: TextCapitalization.characters,
+                        decoration: const InputDecoration(
+                          labelText: 'No. Seal',
+                          hintText: 'Contoh: HUPH019101',
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 12),
-                  _sideCard(context: context, side: InspectionSide.right, photo: s.photoRight, selectedIssues: s.issuesRight),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          const gap = 10.0;
+                          final gridHeight = constraints.maxWidth * 0.72;
+
+                          return SizedBox(
+                            height: gridHeight,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 35,
+                                  child: _photoTile(
+                                    label: 'Foto Depan',
+                                    onTap: () => _takePhoto(InspectionSide.front),
+                                    localFile: s.photoFront,
+                                    remoteUrl: s.photoFrontUrl,
+                                  ),
+                                ),
+                                const SizedBox(width: gap),
+                                Expanded(
+                                  flex: 30,
+                                  child: Column(
+                                    children: [
+                                      Expanded(
+                                        child: _photoTile(
+                                          label: 'Kiri',
+                                          onTap: () => _takePhoto(InspectionSide.left),
+                                          localFile: s.photoLeft,
+                                          remoteUrl: s.photoLeftUrl,
+                                        ),
+                                      ),
+                                      const SizedBox(height: gap),
+                                      Expanded(
+                                        child: _photoTile(
+                                          label: 'Kanan',
+                                          onTap: () => _takePhoto(InspectionSide.right),
+                                          localFile: s.photoRight,
+                                          remoteUrl: s.photoRightUrl,
+                                        ),
+                                      ),
+                                      const SizedBox(height: gap),
+                                      Expanded(
+                                        child: _photoTile(
+                                          label: 'Dalam',
+                                          onTap: () => _takePhoto(InspectionSide.inside),
+                                          localFile: s.photoInside,
+                                          remoteUrl: s.photoInsideUrl,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: gap),
+                                Expanded(
+                                  flex: 35,
+                                  child: _photoTile(
+                                    label: 'Belakang',
+                                    onTap: () => _takePhoto(InspectionSide.back),
+                                    localFile: s.photoBack,
+                                    remoteUrl: s.photoBackUrl,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 12),
-                  _sideCard(context: context, side: InspectionSide.front, photo: s.photoFront, selectedIssues: s.issuesFront),
-                  const SizedBox(height: 12),
-                  _sideCard(context: context, side: InspectionSide.back, photo: s.photoBack, selectedIssues: s.issuesBack),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Checklist Kerusakan', style: TextStyle(fontWeight: FontWeight.w800)),
+                          const SizedBox(height: 10),
+                          InputDecorator(
+                            decoration: const InputDecoration(
+                              labelText: 'Sisi',
+                              border: OutlineInputBorder(),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<InspectionSide>(
+                                value: _issueSide,
+                                isExpanded: true,
+                                items: const [
+                                  DropdownMenuItem(value: InspectionSide.front, child: Text('Depan (Front)')),
+                                  DropdownMenuItem(value: InspectionSide.left, child: Text('Kiri (Left)')),
+                                  DropdownMenuItem(value: InspectionSide.right, child: Text('Kanan (Right)')),
+                                  DropdownMenuItem(value: InspectionSide.back, child: Text('Belakang (Back)')),
+                                ],
+                                onChanged: (v) => setState(() => _issueSide = v ?? InspectionSide.front),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            children: kIssueOptions.map((opt) {
+                              final selected = _issuesFor(s, _issueSide).contains(opt);
+                              return FilterChip(
+                                label: Text(
+                                  _issueLabel(opt),
+                                  style: TextStyle(
+                                    color: selected ? Colors.white : const Color(0xFF334155),
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                selected: selected,
+                                showCheckmark: false,
+                                backgroundColor: Colors.white,
+                                selectedColor: const Color(0xFF2563EB),
+                                side: BorderSide(color: selected ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0)),
+                                onSelected: (_) => context.read<InspectionCubit>().toggleIssue(_issueSide, opt),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   Card(
                     child: Padding(

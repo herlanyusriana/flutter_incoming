@@ -17,6 +17,6 @@ void main() {
     await tester.pumpWidget(const App());
     await tester.pumpAndSettle();
 
-    expect(find.text('Login'), findsOneWidget);
+    expect(find.text('Masuk'), findsOneWidget);
   });
 }

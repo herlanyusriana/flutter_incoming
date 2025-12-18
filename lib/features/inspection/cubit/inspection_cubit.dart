@@ -23,15 +23,27 @@ class InspectionCubit extends Cubit<InspectionState> {
       emit(InspectionState.ready(
         arrival: res.arrival,
         hasExistingInspection: res.inspection != null,
+        sealCode: res.arrival.sealCode ?? '',
         notes: res.inspection?.notes ?? '',
         issuesLeft: res.inspection?.issuesLeft ?? const [],
         issuesRight: res.inspection?.issuesRight ?? const [],
         issuesFront: res.inspection?.issuesFront ?? const [],
         issuesBack: res.inspection?.issuesBack ?? const [],
+        photoLeftUrl: res.inspection?.photoLeftUrl,
+        photoRightUrl: res.inspection?.photoRightUrl,
+        photoFrontUrl: res.inspection?.photoFrontUrl,
+        photoBackUrl: res.inspection?.photoBackUrl,
+        photoInsideUrl: res.inspection?.photoInsideUrl,
       ));
     } catch (e) {
       emit(InspectionState.failure(e.toString()));
     }
+  }
+
+  void setSealCode(String sealCode) {
+    final s = state;
+    if (s is! InspectionReady) return;
+    emit(s.copyWith(sealCode: sealCode));
   }
 
   void setNotes(String notes) {
@@ -63,10 +75,12 @@ class InspectionCubit extends Cubit<InspectionState> {
 
     if (!s.hasExistingInspection) {
       final missing = <String>[];
+      if (s.sealCode.trim().isEmpty) missing.add('no. seal');
       if (s.photoLeft == null) missing.add('foto kiri');
       if (s.photoRight == null) missing.add('foto kanan');
       if (s.photoFront == null) missing.add('foto depan');
       if (s.photoBack == null) missing.add('foto belakang');
+      if (s.photoInside == null) missing.add('foto dalam');
       if (missing.isNotEmpty) {
         emit(InspectionState.failure('Wajib upload: ${missing.join(', ')}'));
         emit(s);
@@ -79,11 +93,13 @@ class InspectionCubit extends Cubit<InspectionState> {
       await _repo.submit(
         arrivalId: _arrivalId,
         status: _deriveStatus(s),
+        sealCode: s.sealCode.trim().isEmpty ? null : s.sealCode.trim(),
         notes: s.notes.trim().isEmpty ? null : s.notes.trim(),
         photoLeft: s.photoLeft,
         photoRight: s.photoRight,
         photoFront: s.photoFront,
         photoBack: s.photoBack,
+        photoInside: s.photoInside,
         issuesLeft: s.issuesLeft,
         issuesRight: s.issuesRight,
         issuesFront: s.issuesFront,
@@ -96,5 +112,4 @@ class InspectionCubit extends Cubit<InspectionState> {
   }
 }
 
-enum InspectionSide { left, right, front, back }
-
+enum InspectionSide { left, right, front, back, inside }
