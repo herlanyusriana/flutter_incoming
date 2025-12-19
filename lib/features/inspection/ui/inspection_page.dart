@@ -71,6 +71,7 @@ class _InspectionViewState extends State<_InspectionView> {
 
   Widget _photoTile({
     required String label,
+    required String orientationHint,
     required VoidCallback onTap,
     required File? localFile,
     required String? remoteUrl,
@@ -119,6 +120,21 @@ class _InspectionViewState extends State<_InspectionView> {
                   border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
                 child: Text(label, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
+              ),
+            ),
+            Positioned(
+              right: 10,
+              bottom: 10,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  orientationHint,
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 11),
+                ),
               ),
             ),
           ],
@@ -217,6 +233,7 @@ class _InspectionViewState extends State<_InspectionView> {
                                   flex: 35,
                                   child: _photoTile(
                                     label: 'Foto Depan',
+                                    orientationHint: 'PORTRAIT',
                                     onTap: () => _takePhoto(InspectionSide.front),
                                     localFile: s.photoFront,
                                     remoteUrl: s.photoFrontUrl,
@@ -230,6 +247,7 @@ class _InspectionViewState extends State<_InspectionView> {
                                       Expanded(
                                         child: _photoTile(
                                           label: 'Kiri',
+                                          orientationHint: 'LANDSCAPE',
                                           onTap: () => _takePhoto(InspectionSide.left),
                                           localFile: s.photoLeft,
                                           remoteUrl: s.photoLeftUrl,
@@ -239,6 +257,7 @@ class _InspectionViewState extends State<_InspectionView> {
                                       Expanded(
                                         child: _photoTile(
                                           label: 'Kanan',
+                                          orientationHint: 'LANDSCAPE',
                                           onTap: () => _takePhoto(InspectionSide.right),
                                           localFile: s.photoRight,
                                           remoteUrl: s.photoRightUrl,
@@ -248,6 +267,7 @@ class _InspectionViewState extends State<_InspectionView> {
                                       Expanded(
                                         child: _photoTile(
                                           label: 'Dalam',
+                                          orientationHint: 'PORTRAIT',
                                           onTap: () => _takePhoto(InspectionSide.inside),
                                           localFile: s.photoInside,
                                           remoteUrl: s.photoInsideUrl,
@@ -261,6 +281,7 @@ class _InspectionViewState extends State<_InspectionView> {
                                   flex: 35,
                                   child: _photoTile(
                                     label: 'Belakang',
+                                    orientationHint: 'PORTRAIT',
                                     onTap: () => _takePhoto(InspectionSide.back),
                                     localFile: s.photoBack,
                                     remoteUrl: s.photoBackUrl,
