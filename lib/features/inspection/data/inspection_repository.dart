@@ -6,13 +6,13 @@ class InspectionRepository {
   InspectionRepository({required ApiClient apiClient}) : _api = apiClient;
   final ApiClient _api;
 
-  Future<ArrivalWithInspection> getArrival(int arrivalId) async {
-    final res = await _api.getJson('/api/arrivals/$arrivalId/inspection');
-    return ArrivalWithInspection.fromJson(res);
+  Future<ContainerWithInspection> getContainer(int containerId) async {
+    final res = await _api.getJson('/api/containers/$containerId/inspection');
+    return ContainerWithInspection.fromJson(res);
   }
 
   Future<void> submit({
-    required int arrivalId,
+    required int containerId,
     required String status,
     required String? sealCode,
     required String? notes,
@@ -27,7 +27,7 @@ class InspectionRepository {
     required List<String> issuesBack,
   }) async {
     await _api.postMultipart(
-      '/api/arrivals/$arrivalId/inspection',
+      '/api/containers/$containerId/inspection',
       fields: {
         'status': status,
         if (sealCode != null) 'seal_code': sealCode,
@@ -50,14 +50,16 @@ class InspectionRepository {
   }
 }
 
-class ArrivalWithInspection {
-  ArrivalWithInspection({required this.arrival, required this.inspection});
+class ContainerWithInspection {
+  ContainerWithInspection({required this.arrival, required this.container, required this.inspection});
   final ArrivalInfo arrival;
+  final ContainerInfo container;
   final Inspection? inspection;
 
-  factory ArrivalWithInspection.fromJson(Map<String, dynamic> json) {
-    return ArrivalWithInspection(
+  factory ContainerWithInspection.fromJson(Map<String, dynamic> json) {
+    return ContainerWithInspection(
       arrival: ArrivalInfo.fromJson(json['arrival'] as Map<String, dynamic>),
+      container: ContainerInfo.fromJson(json['container'] as Map<String, dynamic>),
       inspection: json['inspection'] == null ? null : Inspection.fromJson(json['inspection'] as Map<String, dynamic>),
     );
   }
@@ -88,8 +90,25 @@ class ArrivalInfo {
   }
 }
 
+class ContainerInfo {
+  ContainerInfo({required this.id, required this.containerNo, required this.sealCode});
+
+  final int id;
+  final String containerNo;
+  final String? sealCode;
+
+  factory ContainerInfo.fromJson(Map<String, dynamic> json) {
+    return ContainerInfo(
+      id: json['id'] as int,
+      containerNo: (json['container_no'] as String?) ?? '-',
+      sealCode: json['seal_code'] as String?,
+    );
+  }
+}
+
 class Inspection {
   Inspection({
+    required this.sealCode,
     required this.notes,
     required this.issuesLeft,
     required this.issuesRight,
@@ -102,6 +121,7 @@ class Inspection {
     required this.photoInsideUrl,
   });
 
+  final String? sealCode;
   final String? notes;
   final List<String> issuesLeft;
   final List<String> issuesRight;
@@ -115,6 +135,7 @@ class Inspection {
 
   factory Inspection.fromJson(Map<String, dynamic> json) {
     return Inspection(
+      sealCode: json['seal_code'] as String?,
       notes: json['notes'] as String?,
       issuesLeft: ((json['issues_left'] as List?) ?? const []).cast<String>(),
       issuesRight: ((json['issues_right'] as List?) ?? const []).cast<String>(),

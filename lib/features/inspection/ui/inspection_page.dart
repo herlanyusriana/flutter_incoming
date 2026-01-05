@@ -18,8 +18,8 @@ const List<String> kIssueOptions = [
 ];
 
 class InspectionPage extends StatelessWidget {
-  const InspectionPage({super.key, required this.arrivalId});
-  final int arrivalId;
+  const InspectionPage({super.key, required this.containerId});
+  final int containerId;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class InspectionPage extends StatelessWidget {
       child: BlocProvider(
         create: (context) => InspectionCubit(
           repository: context.read<InspectionRepository>(),
-          arrivalId: arrivalId,
+          containerId: containerId,
         )..load(),
         child: const _InspectionView(),
       ),
@@ -173,7 +173,7 @@ class _InspectionViewState extends State<_InspectionView> {
           );
         }
         final s = state as InspectionReady;
-        final title = '${s.arrival.invoiceNo} • ${s.arrival.arrivalNo}';
+        final title = '${s.arrival.invoiceNo} • ${s.container.containerNo}';
 
         if (!_didInitSealCode) {
           _sealCodeController.text = s.sealCode;
@@ -191,6 +191,31 @@ class _InspectionViewState extends State<_InspectionView> {
               ListView(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
                 children: [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Invoice: ${s.arrival.invoiceNo}',
+                            style: const TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Arrival: ${s.arrival.arrivalNo}',
+                            style: const TextStyle(color: Color(0xFF64748B)),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Container: ${s.container.containerNo}',
+                            style: const TextStyle(color: Color(0xFF64748B)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   if (s.error != null)
                     Container(
                       padding: const EdgeInsets.all(12),

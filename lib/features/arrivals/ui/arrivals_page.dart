@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/api/api_client.dart';
 import '../../auth/cubit/auth_cubit.dart';
-import '../../inspection/ui/inspection_page.dart';
+import '../ui/arrival_containers_page.dart';
 import '../cubit/arrivals_cubit.dart';
 import '../data/arrivals_repository.dart';
 
@@ -136,7 +136,7 @@ class _ArrivalsViewState extends State<_ArrivalsView> {
                           borderRadius: BorderRadius.circular(16),
                           onTap: () async {
                             await Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => InspectionPage(arrivalId: a.id)),
+                              MaterialPageRoute(builder: (_) => ArrivalContainersPage(arrivalId: a.id, invoiceNo: a.invoiceNo)),
                             );
                             if (context.mounted) await _search();
                           },
@@ -194,7 +194,7 @@ class _ArrivalsViewState extends State<_ArrivalsView> {
                                       ),
                                       const SizedBox(height: 6),
                                       Text(
-                                        'Container: ${a.containerNumbers ?? '-'}',
+                                        'Pending: ${a.pendingContainers} • Container: ${a.containerNumbers ?? '-'}',
                                         style: const TextStyle(color: Color(0xFF64748B)),
                                       ),
                                     ],

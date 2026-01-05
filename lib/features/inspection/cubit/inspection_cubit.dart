@@ -8,22 +8,23 @@ import '../data/inspection_repository.dart';
 part 'inspection_state.dart';
 
 class InspectionCubit extends Cubit<InspectionState> {
-  InspectionCubit({required InspectionRepository repository, required int arrivalId})
+  InspectionCubit({required InspectionRepository repository, required int containerId})
       : _repo = repository,
-        _arrivalId = arrivalId,
+        _containerId = containerId,
         super(const InspectionState.loading());
 
   final InspectionRepository _repo;
-  final int _arrivalId;
+  final int _containerId;
 
   Future<void> load() async {
     emit(const InspectionState.loading());
     try {
-      final res = await _repo.getArrival(_arrivalId);
+      final res = await _repo.getContainer(_containerId);
       emit(InspectionState.ready(
         arrival: res.arrival,
+        container: res.container,
         hasExistingInspection: res.inspection != null,
-        sealCode: res.arrival.sealCode ?? '',
+        sealCode: (res.inspection?.sealCode ?? res.container.sealCode) ?? '',
         notes: res.inspection?.notes ?? '',
         issuesLeft: res.inspection?.issuesLeft ?? const [],
         issuesRight: res.inspection?.issuesRight ?? const [],
@@ -91,7 +92,7 @@ class InspectionCubit extends Cubit<InspectionState> {
     emit(s.copyWith(submitting: true, error: null));
     try {
       await _repo.submit(
-        arrivalId: _arrivalId,
+        containerId: _containerId,
         status: _deriveStatus(s),
         sealCode: s.sealCode.trim().isEmpty ? null : s.sealCode.trim(),
         notes: s.notes.trim().isEmpty ? null : s.notes.trim(),

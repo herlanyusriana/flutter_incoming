@@ -6,6 +6,7 @@ sealed class InspectionState extends Equatable {
   const factory InspectionState.loading() = InspectionLoading;
   const factory InspectionState.ready({
     required ArrivalInfo arrival,
+    required ContainerInfo container,
     required bool hasExistingInspection,
     required String sealCode,
     required String notes,
@@ -51,6 +52,7 @@ class InspectionFailure extends InspectionState {
 class InspectionReady extends InspectionState {
   const InspectionReady({
     required this.arrival,
+    required this.container,
     required this.hasExistingInspection,
     required this.sealCode,
     required this.notes,
@@ -74,6 +76,7 @@ class InspectionReady extends InspectionState {
   });
 
   final ArrivalInfo arrival;
+  final ContainerInfo container;
   final bool hasExistingInspection;
   final String sealCode;
   final String notes;
@@ -118,6 +121,7 @@ class InspectionReady extends InspectionState {
   }) {
     return InspectionReady(
       arrival: arrival,
+      container: container,
       hasExistingInspection: hasExistingInspection,
       sealCode: sealCode ?? this.sealCode,
       notes: notes ?? this.notes,
@@ -174,6 +178,7 @@ class InspectionReady extends InspectionState {
   @override
   List<Object?> get props => [
         arrival,
+        container,
         hasExistingInspection,
         sealCode,
         notes,
