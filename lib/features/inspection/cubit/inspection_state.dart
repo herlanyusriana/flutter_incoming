@@ -19,11 +19,13 @@ sealed class InspectionState extends Equatable {
     String? photoFrontUrl,
     String? photoBackUrl,
     String? photoInsideUrl,
+    String? photoSealUrl,
     File? photoLeft,
     File? photoRight,
     File? photoFront,
     File? photoBack,
     File? photoInside,
+    File? photoSeal,
     bool submitting,
     bool submitted,
     String? error,
@@ -65,11 +67,13 @@ class InspectionReady extends InspectionState {
     this.photoFrontUrl,
     this.photoBackUrl,
     this.photoInsideUrl,
+    this.photoSealUrl,
     this.photoLeft,
     this.photoRight,
     this.photoFront,
     this.photoBack,
     this.photoInside,
+    this.photoSeal,
     this.submitting = false,
     this.submitted = false,
     this.error,
@@ -89,11 +93,13 @@ class InspectionReady extends InspectionState {
   final String? photoFrontUrl;
   final String? photoBackUrl;
   final String? photoInsideUrl;
+  final String? photoSealUrl;
   final File? photoLeft;
   final File? photoRight;
   final File? photoFront;
   final File? photoBack;
   final File? photoInside;
+  final File? photoSeal;
   final bool submitting;
   final bool submitted;
   final String? error;
@@ -110,11 +116,13 @@ class InspectionReady extends InspectionState {
     String? photoFrontUrl,
     String? photoBackUrl,
     String? photoInsideUrl,
+    String? photoSealUrl,
     File? photoLeft,
     File? photoRight,
     File? photoFront,
     File? photoBack,
     File? photoInside,
+    File? photoSeal,
     bool? submitting,
     bool? submitted,
     String? error,
@@ -134,11 +142,13 @@ class InspectionReady extends InspectionState {
       photoFrontUrl: photoFrontUrl ?? this.photoFrontUrl,
       photoBackUrl: photoBackUrl ?? this.photoBackUrl,
       photoInsideUrl: photoInsideUrl ?? this.photoInsideUrl,
+      photoSealUrl: photoSealUrl ?? this.photoSealUrl,
       photoLeft: photoLeft ?? this.photoLeft,
       photoRight: photoRight ?? this.photoRight,
       photoFront: photoFront ?? this.photoFront,
       photoBack: photoBack ?? this.photoBack,
       photoInside: photoInside ?? this.photoInside,
+      photoSeal: photoSeal ?? this.photoSeal,
       submitting: submitting ?? this.submitting,
       submitted: submitted ?? this.submitted,
       error: error,
@@ -152,6 +162,7 @@ class InspectionReady extends InspectionState {
       InspectionSide.front => copyWith(photoFront: photo),
       InspectionSide.back => copyWith(photoBack: photo),
       InspectionSide.inside => copyWith(photoInside: photo),
+      InspectionSide.seal => copyWith(photoSeal: photo),
     };
   }
 
@@ -172,6 +183,7 @@ class InspectionReady extends InspectionState {
       InspectionSide.front => copyWith(issuesFront: toggle(issuesFront)),
       InspectionSide.back => copyWith(issuesBack: toggle(issuesBack)),
       InspectionSide.inside => this,
+      InspectionSide.seal => this,
     };
   }
 
@@ -191,11 +203,13 @@ class InspectionReady extends InspectionState {
         photoFrontUrl,
         photoBackUrl,
         photoInsideUrl,
+        photoSealUrl,
         photoLeft?.path,
         photoRight?.path,
         photoFront?.path,
         photoBack?.path,
         photoInside?.path,
+        photoSeal?.path,
         submitting,
         submitted,
         error,

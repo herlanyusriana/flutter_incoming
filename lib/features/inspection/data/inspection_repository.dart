@@ -21,6 +21,7 @@ class InspectionRepository {
     required File? photoFront,
     required File? photoBack,
     required File? photoInside,
+    required File? photoSeal,
     required List<String> issuesLeft,
     required List<String> issuesRight,
     required List<String> issuesFront,
@@ -45,6 +46,7 @@ class InspectionRepository {
         'photo_front': photoFront,
         'photo_back': photoBack,
         'photo_inside': photoInside,
+        'photo_seal': photoSeal,
       },
     );
   }
@@ -119,6 +121,7 @@ class Inspection {
     required this.photoFrontUrl,
     required this.photoBackUrl,
     required this.photoInsideUrl,
+    required this.photoSealUrl,
   });
 
   final String? sealCode;
@@ -132,6 +135,7 @@ class Inspection {
   final String? photoFrontUrl;
   final String? photoBackUrl;
   final String? photoInsideUrl;
+  final String? photoSealUrl;
 
   factory Inspection.fromJson(Map<String, dynamic> json) {
     return Inspection(
@@ -146,6 +150,7 @@ class Inspection {
       photoFrontUrl: json['photo_front_url'] as String?,
       photoBackUrl: json['photo_back_url'] as String?,
       photoInsideUrl: json['photo_inside_url'] as String?,
+      photoSealUrl: json['photo_seal_url'] as String?,
     );
   }
 }

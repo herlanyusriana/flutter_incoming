@@ -35,6 +35,7 @@ class InspectionCubit extends Cubit<InspectionState> {
         photoFrontUrl: res.inspection?.photoFrontUrl,
         photoBackUrl: res.inspection?.photoBackUrl,
         photoInsideUrl: res.inspection?.photoInsideUrl,
+        photoSealUrl: res.inspection?.photoSealUrl,
       ));
     } catch (e) {
       emit(InspectionState.failure(e.toString()));
@@ -82,6 +83,7 @@ class InspectionCubit extends Cubit<InspectionState> {
       if (s.photoFront == null) missing.add('foto depan');
       if (s.photoBack == null) missing.add('foto belakang');
       if (s.photoInside == null) missing.add('foto dalam');
+      if (s.photoSeal == null) missing.add('foto seal');
       if (missing.isNotEmpty) {
         emit(InspectionState.failure('Wajib upload: ${missing.join(', ')}'));
         emit(s);
@@ -101,6 +103,7 @@ class InspectionCubit extends Cubit<InspectionState> {
         photoFront: s.photoFront,
         photoBack: s.photoBack,
         photoInside: s.photoInside,
+        photoSeal: s.photoSeal,
         issuesLeft: s.issuesLeft,
         issuesRight: s.issuesRight,
         issuesFront: s.issuesFront,
@@ -113,4 +116,4 @@ class InspectionCubit extends Cubit<InspectionState> {
   }
 }
 
-enum InspectionSide { left, right, front, back, inside }
+enum InspectionSide { left, right, front, back, inside, seal }

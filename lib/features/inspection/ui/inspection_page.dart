@@ -156,6 +156,7 @@ class _InspectionViewState extends State<_InspectionView> {
       InspectionSide.front => s.issuesFront,
       InspectionSide.back => s.issuesBack,
       InspectionSide.inside => const [],
+      InspectionSide.seal => const [],
     };
   }
 
@@ -254,7 +255,7 @@ class _InspectionViewState extends State<_InspectionView> {
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           const gap = 10.0;
-                          final gridHeight = constraints.maxWidth * 0.72;
+                          final gridHeight = constraints.maxWidth * 0.92;
 
                           return SizedBox(
                             height: gridHeight,
@@ -302,6 +303,16 @@ class _InspectionViewState extends State<_InspectionView> {
                                           onTap: () => _takePhoto(InspectionSide.inside),
                                           localFile: s.photoInside,
                                           remoteUrl: s.photoInsideUrl,
+                                        ),
+                                      ),
+                                      const SizedBox(height: gap),
+                                      Expanded(
+                                        child: _photoTile(
+                                          label: 'Foto Seal',
+                                          orientationHint: 'PORTRAIT',
+                                          onTap: () => _takePhoto(InspectionSide.seal),
+                                          localFile: s.photoSeal,
+                                          remoteUrl: s.photoSealUrl,
                                         ),
                                       ),
                                     ],
