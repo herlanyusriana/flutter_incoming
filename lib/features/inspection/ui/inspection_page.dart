@@ -60,7 +60,13 @@ class _InspectionViewState extends State<_InspectionView> {
   Future<void> _takePhoto(InspectionSide side) async {
     final cubit = context.read<InspectionCubit>();
     final picker = ImagePicker();
-    final xfile = await picker.pickImage(source: ImageSource.camera, imageQuality: 85);
+    final xfile = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 75,
+      maxWidth: 1600,
+      maxHeight: 1600,
+      requestFullMetadata: false,
+    );
     if (!mounted || xfile == null) return;
     cubit.setPhoto(side, File(xfile.path));
   }

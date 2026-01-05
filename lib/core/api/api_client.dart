@@ -26,17 +26,36 @@ class ApiClient {
     return headers;
   }
 
+  Map<String, dynamic> _decodeJson(http.Response res) {
+    try {
+      final decoded = jsonDecode(res.body);
+      if (decoded is Map<String, dynamic>) return decoded;
+      return {'message': 'Unexpected JSON shape', 'body': decoded};
+    } on FormatException {
+      final contentType = res.headers['content-type'];
+      final bodyPreview = res.body.length > 500 ? '${res.body.substring(0, 500)}…' : res.body;
+      return {
+        'message': 'Invalid JSON response',
+        'status': res.statusCode,
+        'content_type': contentType,
+        'body_preview': bodyPreview,
+      };
+    }
+  }
+
   Future<Map<String, dynamic>> postJson(String path, Map<String, dynamic> body) async {
     final res = await _http.post(_u(path), headers: await _headers(), body: jsonEncode(body));
-    final decoded = jsonDecode(res.body) as Map<String, dynamic>;
+    final decoded = _decodeJson(res);
     if (res.statusCode >= 400) throw ApiException(decoded, res.statusCode);
+    if (decoded['message'] == 'Invalid JSON response') throw ApiException(decoded, res.statusCode);
     return decoded;
   }
 
   Future<Map<String, dynamic>> getJson(String path, {Map<String, String>? query}) async {
     final res = await _http.get(_u(path, query), headers: await _headers(jsonBody: false));
-    final decoded = jsonDecode(res.body) as Map<String, dynamic>;
+    final decoded = _decodeJson(res);
     if (res.statusCode >= 400) throw ApiException(decoded, res.statusCode);
+    if (decoded['message'] == 'Invalid JSON response') throw ApiException(decoded, res.statusCode);
     return decoded;
   }
 
@@ -68,8 +87,9 @@ class ApiClient {
 
     final streamed = await req.send();
     final res = await http.Response.fromStream(streamed);
-    final decoded = jsonDecode(res.body) as Map<String, dynamic>;
+    final decoded = _decodeJson(res);
     if (res.statusCode >= 400) throw ApiException(decoded, res.statusCode);
+    if (decoded['message'] == 'Invalid JSON response') throw ApiException(decoded, res.statusCode);
     return decoded;
   }
 }
@@ -82,4 +102,3 @@ class ApiException implements Exception {
   @override
   String toString() => 'ApiException($statusCode): $body';
 }
-
