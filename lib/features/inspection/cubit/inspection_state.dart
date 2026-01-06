@@ -22,12 +22,14 @@ sealed class InspectionState extends Equatable {
     String? photoBackUrl,
     String? photoInsideUrl,
     String? photoSealUrl,
+    String? photoDamageUrl,
     File? photoLeft,
     File? photoRight,
     File? photoFront,
     File? photoBack,
     File? photoInside,
     File? photoSeal,
+    File? photoDamage,
     bool submitting,
     bool submitted,
     String? error,
@@ -72,12 +74,14 @@ class InspectionReady extends InspectionState {
     this.photoBackUrl,
     this.photoInsideUrl,
     this.photoSealUrl,
+    this.photoDamageUrl,
     this.photoLeft,
     this.photoRight,
     this.photoFront,
     this.photoBack,
     this.photoInside,
     this.photoSeal,
+    this.photoDamage,
     this.submitting = false,
     this.submitted = false,
     this.error,
@@ -100,12 +104,14 @@ class InspectionReady extends InspectionState {
   final String? photoBackUrl;
   final String? photoInsideUrl;
   final String? photoSealUrl;
+  final String? photoDamageUrl;
   final File? photoLeft;
   final File? photoRight;
   final File? photoFront;
   final File? photoBack;
   final File? photoInside;
   final File? photoSeal;
+  final File? photoDamage;
   final bool submitting;
   final bool submitted;
   final String? error;
@@ -125,12 +131,14 @@ class InspectionReady extends InspectionState {
     String? photoBackUrl,
     String? photoInsideUrl,
     String? photoSealUrl,
+    String? photoDamageUrl,
     File? photoLeft,
     File? photoRight,
     File? photoFront,
     File? photoBack,
     File? photoInside,
     File? photoSeal,
+    File? photoDamage,
     bool? submitting,
     bool? submitted,
     String? error,
@@ -153,12 +161,14 @@ class InspectionReady extends InspectionState {
       photoBackUrl: photoBackUrl ?? this.photoBackUrl,
       photoInsideUrl: photoInsideUrl ?? this.photoInsideUrl,
       photoSealUrl: photoSealUrl ?? this.photoSealUrl,
+      photoDamageUrl: photoDamageUrl ?? this.photoDamageUrl,
       photoLeft: photoLeft ?? this.photoLeft,
       photoRight: photoRight ?? this.photoRight,
       photoFront: photoFront ?? this.photoFront,
       photoBack: photoBack ?? this.photoBack,
       photoInside: photoInside ?? this.photoInside,
       photoSeal: photoSeal ?? this.photoSeal,
+      photoDamage: photoDamage ?? this.photoDamage,
       submitting: submitting ?? this.submitting,
       submitted: submitted ?? this.submitted,
       error: error,
@@ -216,12 +226,14 @@ class InspectionReady extends InspectionState {
         photoBackUrl,
         photoInsideUrl,
         photoSealUrl,
+        photoDamageUrl,
         photoLeft?.path,
         photoRight?.path,
         photoFront?.path,
         photoBack?.path,
         photoInside?.path,
         photoSeal?.path,
+        photoDamage?.path,
         submitting,
         submitted,
         error,

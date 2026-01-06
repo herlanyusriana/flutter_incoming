@@ -39,6 +39,7 @@ class InspectionCubit extends Cubit<InspectionState> {
         photoBackUrl: res.inspection?.photoBackUrl,
         photoInsideUrl: res.inspection?.photoInsideUrl,
         photoSealUrl: res.inspection?.photoSealUrl,
+        photoDamageUrl: res.inspection?.photoDamageUrl,
       ));
     } catch (e) {
       emit(InspectionState.failure(e.toString()));
@@ -98,6 +99,12 @@ class InspectionCubit extends Cubit<InspectionState> {
     emit(s.copyWithPhoto(side, photo));
   }
 
+  void setDamagePhoto(File? photo) {
+    final s = state;
+    if (s is! InspectionReady) return;
+    emit(s.copyWith(photoDamage: photo));
+  }
+
   String _deriveStatus(InspectionReady s) {
     final hasIssues = s.issuesLeft.isNotEmpty || s.issuesRight.isNotEmpty || s.issuesFront.isNotEmpty || s.issuesBack.isNotEmpty;
     return hasIssues ? 'damage' : 'ok';
@@ -139,6 +146,7 @@ class InspectionCubit extends Cubit<InspectionState> {
         photoBack: s.photoBack,
         photoInside: s.photoInside,
         photoSeal: s.photoSeal,
+        photoDamage: s.photoDamage,
         issuesLeft: s.issuesLeft,
         issuesRight: s.issuesRight,
         issuesFront: s.issuesFront,

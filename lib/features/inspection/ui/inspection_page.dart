@@ -74,6 +74,20 @@ class _InspectionViewState extends State<_InspectionView> {
     cubit.setPhoto(side, File(xfile.path));
   }
 
+  Future<void> _takeDamagePhoto() async {
+    final cubit = context.read<InspectionCubit>();
+    final picker = ImagePicker();
+    final xfile = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 75,
+      maxWidth: 1600,
+      maxHeight: 1600,
+      requestFullMetadata: false,
+    );
+    if (!mounted || xfile == null) return;
+    cubit.setDamagePhoto(File(xfile.path));
+  }
+
   String _issueLabel(String key) {
     return key.replaceAll('_', ' ');
   }
@@ -84,6 +98,7 @@ class _InspectionViewState extends State<_InspectionView> {
     required VoidCallback onTap,
     required File? localFile,
     required String? remoteUrl,
+    VoidCallback? onClear,
   }) {
     return InkWell(
       borderRadius: BorderRadius.circular(14),
@@ -146,6 +161,23 @@ class _InspectionViewState extends State<_InspectionView> {
                 ),
               ),
             ),
+            if (onClear != null && localFile != null)
+              Positioned(
+                right: 10,
+                top: 10,
+                child: InkResponse(
+                  onTap: onClear,
+                  radius: 20,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.55),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.close_rounded, color: Colors.white, size: 18),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -411,6 +443,18 @@ class _InspectionViewState extends State<_InspectionView> {
                                 onSelected: (_) => context.read<InspectionCubit>().toggleIssue(_issueSide, opt),
                               );
                             }).toList(),
+                          ),
+                          const SizedBox(height: 14),
+                          SizedBox(
+                            height: 170,
+                            child: _photoTile(
+                              label: 'Foto Detail Kerusakan (Optional)',
+                              orientationHint: 'OPTIONAL',
+                              onTap: _takeDamagePhoto,
+                              localFile: s.photoDamage,
+                              remoteUrl: s.photoDamageUrl,
+                              onClear: s.photoDamage != null ? () => context.read<InspectionCubit>().setDamagePhoto(null) : null,
+                            ),
                           ),
                         ],
                       ),
