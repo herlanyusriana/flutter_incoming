@@ -20,12 +20,15 @@ class InspectionCubit extends Cubit<InspectionState> {
     emit(const InspectionState.loading());
     try {
       final res = await _repo.getContainer(_containerId);
+      final existingNotes = (res.inspection?.notes ?? '').trim();
       emit(InspectionState.ready(
         arrival: res.arrival,
         container: res.container,
         hasExistingInspection: res.inspection != null,
         sealCode: (res.inspection?.sealCode ?? res.container.sealCode) ?? '',
-        notes: res.inspection?.notes ?? '',
+        driverName: res.inspection?.driverName ?? '',
+        notes: existingNotes,
+        notesAuto: existingNotes.isEmpty,
         issuesLeft: res.inspection?.issuesLeft ?? const [],
         issuesRight: res.inspection?.issuesRight ?? const [],
         issuesFront: res.inspection?.issuesFront ?? const [],
@@ -51,13 +54,42 @@ class InspectionCubit extends Cubit<InspectionState> {
   void setNotes(String notes) {
     final s = state;
     if (s is! InspectionReady) return;
-    emit(s.copyWith(notes: notes));
+    final nextAuto = notes.trim().isEmpty;
+    emit(s.copyWith(notes: notes, notesAuto: nextAuto));
+  }
+
+  void setDriverName(String name) {
+    final s = state;
+    if (s is! InspectionReady) return;
+    emit(s.copyWith(driverName: name));
+  }
+
+  String _buildAutoNotes(InspectionReady s) {
+    final parts = <String>[];
+    void add(String label, List<String> issues) {
+      if (issues.isEmpty) return;
+      parts.add('$label: ${issues.join(', ')}');
+    }
+
+    add('DEPAN', s.issuesFront);
+    add('KIRI', s.issuesLeft);
+    add('KANAN', s.issuesRight);
+    add('BELAKANG', s.issuesBack);
+
+    if (parts.isEmpty) return '';
+    return parts.join(' | ');
   }
 
   void toggleIssue(InspectionSide side, String issue) {
     final s = state;
     if (s is! InspectionReady) return;
-    emit(s.toggleIssue(side, issue));
+    final next = s.toggleIssue(side, issue);
+    if (!next.notesAuto) {
+      emit(next);
+      return;
+    }
+    final autoNotes = _buildAutoNotes(next);
+    emit(next.copyWith(notes: autoNotes, notesAuto: true));
   }
 
   void setPhoto(InspectionSide side, File photo) {
@@ -78,6 +110,7 @@ class InspectionCubit extends Cubit<InspectionState> {
     if (!s.hasExistingInspection) {
       final missing = <String>[];
       if (s.sealCode.trim().isEmpty) missing.add('no. seal');
+      if (s.driverName.trim().isEmpty) missing.add('driver name');
       if (s.photoLeft == null) missing.add('foto kiri');
       if (s.photoRight == null) missing.add('foto kanan');
       if (s.photoFront == null) missing.add('foto depan');
@@ -93,11 +126,13 @@ class InspectionCubit extends Cubit<InspectionState> {
 
     emit(s.copyWith(submitting: true, error: null));
     try {
+      final computedNotes = s.notes.trim().isEmpty ? _buildAutoNotes(s) : s.notes.trim();
       await _repo.submit(
         containerId: _containerId,
         status: _deriveStatus(s),
         sealCode: s.sealCode.trim().isEmpty ? null : s.sealCode.trim(),
-        notes: s.notes.trim().isEmpty ? null : s.notes.trim(),
+        driverName: s.driverName.trim().isEmpty ? null : s.driverName.trim(),
+        notes: computedNotes.isEmpty ? null : computedNotes,
         photoLeft: s.photoLeft,
         photoRight: s.photoRight,
         photoFront: s.photoFront,

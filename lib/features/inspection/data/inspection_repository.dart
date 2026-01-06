@@ -15,6 +15,7 @@ class InspectionRepository {
     required int containerId,
     required String status,
     required String? sealCode,
+    required String? driverName,
     required String? notes,
     required File? photoLeft,
     required File? photoRight,
@@ -32,6 +33,7 @@ class InspectionRepository {
       fields: {
         'status': status,
         if (sealCode != null) 'seal_code': sealCode,
+        if (driverName != null) 'driver_name': driverName,
         if (notes != null) 'notes': notes,
       },
       listFields: {
@@ -111,6 +113,7 @@ class ContainerInfo {
 class Inspection {
   Inspection({
     required this.sealCode,
+    required this.driverName,
     required this.notes,
     required this.issuesLeft,
     required this.issuesRight,
@@ -125,6 +128,7 @@ class Inspection {
   });
 
   final String? sealCode;
+  final String? driverName;
   final String? notes;
   final List<String> issuesLeft;
   final List<String> issuesRight;
@@ -140,6 +144,7 @@ class Inspection {
   factory Inspection.fromJson(Map<String, dynamic> json) {
     return Inspection(
       sealCode: json['seal_code'] as String?,
+      driverName: json['driver_name'] as String?,
       notes: json['notes'] as String?,
       issuesLeft: ((json['issues_left'] as List?) ?? const []).cast<String>(),
       issuesRight: ((json['issues_right'] as List?) ?? const []).cast<String>(),

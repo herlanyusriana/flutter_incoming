@@ -45,14 +45,17 @@ class _InspectionView extends StatefulWidget {
 
 class _InspectionViewState extends State<_InspectionView> {
   final _sealCodeController = TextEditingController();
+  final _driverNameController = TextEditingController();
   final _notesController = TextEditingController();
   bool _didInitSealCode = false;
+  bool _didInitDriverName = false;
   bool _didInitNotes = false;
   InspectionSide _issueSide = InspectionSide.front;
 
   @override
   void dispose() {
     _sealCodeController.dispose();
+    _driverNameController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -186,9 +189,16 @@ class _InspectionViewState extends State<_InspectionView> {
           _sealCodeController.text = s.sealCode;
           _didInitSealCode = true;
         }
+        if (!_didInitDriverName) {
+          _driverNameController.text = s.driverName;
+          _didInitDriverName = true;
+        }
         if (!_didInitNotes) {
           _notesController.text = s.notes;
           _didInitNotes = true;
+        }
+        if (s.notesAuto && _notesController.text != s.notes) {
+          _notesController.text = s.notes;
         }
 
         return Scaffold(
@@ -244,6 +254,21 @@ class _InspectionViewState extends State<_InspectionView> {
                         decoration: const InputDecoration(
                           labelText: 'No. Seal',
                           hintText: 'Contoh: HUPH019101',
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: TextField(
+                        controller: _driverNameController,
+                        onChanged: context.read<InspectionCubit>().setDriverName,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: const InputDecoration(
+                          labelText: 'Driver Name',
+                          hintText: 'Nama driver untuk kolom tanda tangan',
                         ),
                       ),
                     ),
@@ -401,7 +426,7 @@ class _InspectionViewState extends State<_InspectionView> {
                         maxLines: 3,
                         decoration: const InputDecoration(
                           labelText: 'Catatan',
-                          hintText: 'Contoh: terdapat karat pada sisi kanan',
+                          hintText: 'Otomatis dari checklist kerusakan (bisa diedit)',
                         ),
                       ),
                     ),

@@ -9,7 +9,9 @@ sealed class InspectionState extends Equatable {
     required ContainerInfo container,
     required bool hasExistingInspection,
     required String sealCode,
+    required String driverName,
     required String notes,
+    required bool notesAuto,
     required List<String> issuesLeft,
     required List<String> issuesRight,
     required List<String> issuesFront,
@@ -57,7 +59,9 @@ class InspectionReady extends InspectionState {
     required this.container,
     required this.hasExistingInspection,
     required this.sealCode,
+    required this.driverName,
     required this.notes,
+    required this.notesAuto,
     required this.issuesLeft,
     required this.issuesRight,
     required this.issuesFront,
@@ -83,7 +87,9 @@ class InspectionReady extends InspectionState {
   final ContainerInfo container;
   final bool hasExistingInspection;
   final String sealCode;
+  final String driverName;
   final String notes;
+  final bool notesAuto;
   final List<String> issuesLeft;
   final List<String> issuesRight;
   final List<String> issuesFront;
@@ -106,7 +112,9 @@ class InspectionReady extends InspectionState {
 
   InspectionReady copyWith({
     String? sealCode,
+    String? driverName,
     String? notes,
+    bool? notesAuto,
     List<String>? issuesLeft,
     List<String>? issuesRight,
     List<String>? issuesFront,
@@ -132,7 +140,9 @@ class InspectionReady extends InspectionState {
       container: container,
       hasExistingInspection: hasExistingInspection,
       sealCode: sealCode ?? this.sealCode,
+      driverName: driverName ?? this.driverName,
       notes: notes ?? this.notes,
+      notesAuto: notesAuto ?? this.notesAuto,
       issuesLeft: issuesLeft ?? this.issuesLeft,
       issuesRight: issuesRight ?? this.issuesRight,
       issuesFront: issuesFront ?? this.issuesFront,
@@ -193,7 +203,9 @@ class InspectionReady extends InspectionState {
         container,
         hasExistingInspection,
         sealCode,
+        driverName,
         notes,
+        notesAuto,
         issuesLeft,
         issuesRight,
         issuesFront,
