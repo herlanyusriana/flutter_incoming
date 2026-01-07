@@ -190,8 +190,8 @@ class _InspectionViewState extends State<_InspectionView> {
       InspectionSide.right => s.issuesRight,
       InspectionSide.front => s.issuesFront,
       InspectionSide.back => s.issuesBack,
-      InspectionSide.inside => const [],
-      InspectionSide.seal => const [],
+      InspectionSide.inside => s.issuesInside,
+      InspectionSide.seal => s.issuesSeal,
     };
   }
 
@@ -404,7 +404,7 @@ class _InspectionViewState extends State<_InspectionView> {
                           const SizedBox(height: 10),
                           InputDecorator(
                             decoration: const InputDecoration(
-                              labelText: 'Sisi',
+                              labelText: 'Bagian',
                               border: OutlineInputBorder(),
                             ),
                             child: DropdownButtonHideUnderline(
@@ -412,10 +412,12 @@ class _InspectionViewState extends State<_InspectionView> {
                                 value: _issueSide,
                                 isExpanded: true,
                                 items: const [
-                                  DropdownMenuItem(value: InspectionSide.front, child: Text('Depan (Front)')),
-                                  DropdownMenuItem(value: InspectionSide.left, child: Text('Kiri (Left)')),
-                                  DropdownMenuItem(value: InspectionSide.right, child: Text('Kanan (Right)')),
-                                  DropdownMenuItem(value: InspectionSide.back, child: Text('Belakang (Back)')),
+                                  DropdownMenuItem(value: InspectionSide.front, child: Text('Depan')),
+                                  DropdownMenuItem(value: InspectionSide.back, child: Text('Belakang')),
+                                  DropdownMenuItem(value: InspectionSide.left, child: Text('Kiri')),
+                                  DropdownMenuItem(value: InspectionSide.right, child: Text('Kanan')),
+                                  DropdownMenuItem(value: InspectionSide.inside, child: Text('Dalam')),
+                                  DropdownMenuItem(value: InspectionSide.seal, child: Text('No. Seal')),
                                 ],
                                 onChanged: (v) => setState(() => _issueSide = v ?? InspectionSide.front),
                               ),
@@ -464,14 +466,30 @@ class _InspectionViewState extends State<_InspectionView> {
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(14),
-                      child: TextField(
-                        controller: _notesController,
-                        onChanged: context.read<InspectionCubit>().setNotes,
-                        maxLines: 3,
-                        decoration: const InputDecoration(
-                          labelText: 'Catatan',
-                          hintText: 'Otomatis dari checklist kerusakan (bisa diedit)',
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton.icon(
+                              onPressed: () {
+                                final cubit = context.read<InspectionCubit>();
+                                cubit.applyAutoNotes();
+                              },
+                              icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+                              label: const Text('Generate keterangan'),
+                            ),
+                          ),
+                          TextField(
+                            controller: _notesController,
+                            onChanged: context.read<InspectionCubit>().setNotes,
+                            maxLines: 3,
+                            decoration: const InputDecoration(
+                              labelText: 'Keterangan',
+                              hintText: 'Otomatis dari checklist kerusakan (bisa diedit)',
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

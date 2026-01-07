@@ -33,6 +33,8 @@ class InspectionCubit extends Cubit<InspectionState> {
         issuesRight: res.inspection?.issuesRight ?? const [],
         issuesFront: res.inspection?.issuesFront ?? const [],
         issuesBack: res.inspection?.issuesBack ?? const [],
+        issuesInside: res.inspection?.issuesInside ?? const [],
+        issuesSeal: res.inspection?.issuesSeal ?? const [],
         photoLeftUrl: res.inspection?.photoLeftUrl,
         photoRightUrl: res.inspection?.photoRightUrl,
         photoFrontUrl: res.inspection?.photoFrontUrl,
@@ -65,20 +67,45 @@ class InspectionCubit extends Cubit<InspectionState> {
     emit(s.copyWith(driverName: name));
   }
 
+  String buildAutoNotes() {
+    final s = state;
+    if (s is! InspectionReady) return '';
+    return _buildAutoNotes(s);
+  }
+
+  void applyAutoNotes() {
+    final s = state;
+    if (s is! InspectionReady) return;
+    emit(s.copyWith(notes: _buildAutoNotes(s), notesAuto: true));
+  }
+
   String _buildAutoNotes(InspectionReady s) {
-    final parts = <String>[];
-    void add(String label, List<String> issues) {
-      if (issues.isEmpty) return;
-      parts.add('$label: ${issues.join(', ')}');
+    List<String> cleanIssues(List<String> issues) {
+      return issues.map((e) => e.trim()).where((e) => e.isNotEmpty).toSet().toList()..sort();
     }
 
-    add('DEPAN', s.issuesFront);
-    add('KIRI', s.issuesLeft);
-    add('KANAN', s.issuesRight);
-    add('BELAKANG', s.issuesBack);
+    String fmtSide(String label, List<String> issues) {
+      final clean = cleanIssues(issues);
+      if (clean.isEmpty) return '';
+      return '$label (${clean.join(', ')})';
+    }
 
-    if (parts.isEmpty) return '';
-    return parts.join(' | ');
+    final damageParts = <String>[
+      fmtSide('Depan', s.issuesFront),
+      fmtSide('Belakang', s.issuesBack),
+      fmtSide('Kiri', s.issuesLeft),
+      fmtSide('Kanan', s.issuesRight),
+      fmtSide('Dalam', s.issuesInside),
+      fmtSide('No. Seal', s.issuesSeal),
+    ].where((e) => e.isNotEmpty).toList();
+
+    final header = 'Hasil inspeksi visual container ${s.container.containerNo}';
+
+    if (damageParts.isEmpty) {
+      return '$header: kondisi dalam keadaan baik.';
+    }
+
+    return '$header: ditemukan kerusakan pada ${damageParts.join(' | ')}.';
   }
 
   void toggleIssue(InspectionSide side, String issue) {
@@ -106,7 +133,12 @@ class InspectionCubit extends Cubit<InspectionState> {
   }
 
   String _deriveStatus(InspectionReady s) {
-    final hasIssues = s.issuesLeft.isNotEmpty || s.issuesRight.isNotEmpty || s.issuesFront.isNotEmpty || s.issuesBack.isNotEmpty;
+    final hasIssues = s.issuesLeft.isNotEmpty ||
+        s.issuesRight.isNotEmpty ||
+        s.issuesFront.isNotEmpty ||
+        s.issuesBack.isNotEmpty ||
+        s.issuesInside.isNotEmpty ||
+        s.issuesSeal.isNotEmpty;
     return hasIssues ? 'damage' : 'ok';
   }
 
@@ -151,6 +183,8 @@ class InspectionCubit extends Cubit<InspectionState> {
         issuesRight: s.issuesRight,
         issuesFront: s.issuesFront,
         issuesBack: s.issuesBack,
+        issuesInside: s.issuesInside,
+        issuesSeal: s.issuesSeal,
       );
       emit(s.copyWith(submitting: false, submitted: true));
     } catch (e) {

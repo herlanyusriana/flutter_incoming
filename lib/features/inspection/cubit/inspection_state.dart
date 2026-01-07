@@ -16,6 +16,8 @@ sealed class InspectionState extends Equatable {
     required List<String> issuesRight,
     required List<String> issuesFront,
     required List<String> issuesBack,
+    required List<String> issuesInside,
+    required List<String> issuesSeal,
     String? photoLeftUrl,
     String? photoRightUrl,
     String? photoFrontUrl,
@@ -68,6 +70,8 @@ class InspectionReady extends InspectionState {
     required this.issuesRight,
     required this.issuesFront,
     required this.issuesBack,
+    required this.issuesInside,
+    required this.issuesSeal,
     this.photoLeftUrl,
     this.photoRightUrl,
     this.photoFrontUrl,
@@ -98,6 +102,8 @@ class InspectionReady extends InspectionState {
   final List<String> issuesRight;
   final List<String> issuesFront;
   final List<String> issuesBack;
+  final List<String> issuesInside;
+  final List<String> issuesSeal;
   final String? photoLeftUrl;
   final String? photoRightUrl;
   final String? photoFrontUrl;
@@ -125,6 +131,8 @@ class InspectionReady extends InspectionState {
     List<String>? issuesRight,
     List<String>? issuesFront,
     List<String>? issuesBack,
+    List<String>? issuesInside,
+    List<String>? issuesSeal,
     String? photoLeftUrl,
     String? photoRightUrl,
     String? photoFrontUrl,
@@ -155,6 +163,8 @@ class InspectionReady extends InspectionState {
       issuesRight: issuesRight ?? this.issuesRight,
       issuesFront: issuesFront ?? this.issuesFront,
       issuesBack: issuesBack ?? this.issuesBack,
+      issuesInside: issuesInside ?? this.issuesInside,
+      issuesSeal: issuesSeal ?? this.issuesSeal,
       photoLeftUrl: photoLeftUrl ?? this.photoLeftUrl,
       photoRightUrl: photoRightUrl ?? this.photoRightUrl,
       photoFrontUrl: photoFrontUrl ?? this.photoFrontUrl,
@@ -202,8 +212,8 @@ class InspectionReady extends InspectionState {
       InspectionSide.right => copyWith(issuesRight: toggle(issuesRight)),
       InspectionSide.front => copyWith(issuesFront: toggle(issuesFront)),
       InspectionSide.back => copyWith(issuesBack: toggle(issuesBack)),
-      InspectionSide.inside => this,
-      InspectionSide.seal => this,
+      InspectionSide.inside => copyWith(issuesInside: toggle(issuesInside)),
+      InspectionSide.seal => copyWith(issuesSeal: toggle(issuesSeal)),
     };
   }
 
@@ -220,6 +230,8 @@ class InspectionReady extends InspectionState {
         issuesRight,
         issuesFront,
         issuesBack,
+        issuesInside,
+        issuesSeal,
         photoLeftUrl,
         photoRightUrl,
         photoFrontUrl,

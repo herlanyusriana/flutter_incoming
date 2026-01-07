@@ -28,6 +28,8 @@ class InspectionRepository {
     required List<String> issuesRight,
     required List<String> issuesFront,
     required List<String> issuesBack,
+    required List<String> issuesInside,
+    required List<String> issuesSeal,
   }) async {
     await _api.postMultipart(
       '/api/containers/$containerId/inspection',
@@ -42,6 +44,8 @@ class InspectionRepository {
         'issues_right': issuesRight,
         'issues_front': issuesFront,
         'issues_back': issuesBack,
+        'issues_inside': issuesInside,
+        'issues_seal': issuesSeal,
       },
       files: {
         'photo_left': photoLeft,
@@ -121,6 +125,8 @@ class Inspection {
     required this.issuesRight,
     required this.issuesFront,
     required this.issuesBack,
+    required this.issuesInside,
+    required this.issuesSeal,
     required this.photoLeftUrl,
     required this.photoRightUrl,
     required this.photoFrontUrl,
@@ -137,6 +143,8 @@ class Inspection {
   final List<String> issuesRight;
   final List<String> issuesFront;
   final List<String> issuesBack;
+  final List<String> issuesInside;
+  final List<String> issuesSeal;
   final String? photoLeftUrl;
   final String? photoRightUrl;
   final String? photoFrontUrl;
@@ -154,6 +162,8 @@ class Inspection {
       issuesRight: ((json['issues_right'] as List?) ?? const []).cast<String>(),
       issuesFront: ((json['issues_front'] as List?) ?? const []).cast<String>(),
       issuesBack: ((json['issues_back'] as List?) ?? const []).cast<String>(),
+      issuesInside: ((json['issues_inside'] as List?) ?? const []).cast<String>(),
+      issuesSeal: ((json['issues_seal'] as List?) ?? const []).cast<String>(),
       photoLeftUrl: json['photo_left_url'] as String?,
       photoRightUrl: json['photo_right_url'] as String?,
       photoFrontUrl: json['photo_front_url'] as String?,
