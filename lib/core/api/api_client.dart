@@ -27,6 +27,13 @@ class ApiClient {
   }
 
   Map<String, dynamic> _decodeJson(http.Response res) {
+    if (res.statusCode == 413) {
+      return {
+        'message': 'Upload terlalu besar (413). Coba ulang dengan foto yang lebih kecil.',
+        'status': res.statusCode,
+        'content_type': res.headers['content-type'],
+      };
+    }
     try {
       final decoded = jsonDecode(res.body);
       if (decoded is Map<String, dynamic>) return decoded;

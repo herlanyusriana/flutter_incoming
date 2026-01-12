@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/api/api_client.dart';
+import '../../../core/utils/image_upload_compressor.dart';
 import '../cubit/inspection_cubit.dart';
 import '../data/inspection_repository.dart';
 
@@ -47,6 +48,7 @@ class _InspectionViewState extends State<_InspectionView> {
   final _sealCodeController = TextEditingController();
   final _driverNameController = TextEditingController();
   final _notesController = TextEditingController();
+  final _compressor = const ImageUploadCompressor();
   bool _didInitSealCode = false;
   bool _didInitDriverName = false;
   bool _didInitNotes = false;
@@ -65,13 +67,15 @@ class _InspectionViewState extends State<_InspectionView> {
     final picker = ImagePicker();
     final xfile = await picker.pickImage(
       source: source,
-      imageQuality: 75,
-      maxWidth: 1600,
-      maxHeight: 1600,
+      imageQuality: 65,
+      maxWidth: 1280,
+      maxHeight: 1280,
       requestFullMetadata: false,
     );
     if (!mounted || xfile == null) return;
-    await cubit.setPhoto(side, File(xfile.path));
+    final compressed = await _compressor.compress(File(xfile.path), maxDimension: 1280, quality: 60);
+    if (!mounted) return;
+    await cubit.setPhoto(side, compressed);
   }
 
   Future<void> _pickDamagePhoto(ImageSource source) async {
@@ -79,13 +83,15 @@ class _InspectionViewState extends State<_InspectionView> {
     final picker = ImagePicker();
     final xfile = await picker.pickImage(
       source: source,
-      imageQuality: 75,
-      maxWidth: 1600,
-      maxHeight: 1600,
+      imageQuality: 65,
+      maxWidth: 1280,
+      maxHeight: 1280,
       requestFullMetadata: false,
     );
     if (!mounted || xfile == null) return;
-    await cubit.setDamagePhoto(File(xfile.path));
+    final compressed = await _compressor.compress(File(xfile.path), maxDimension: 1280, quality: 60);
+    if (!mounted) return;
+    await cubit.setDamagePhoto(compressed);
   }
 
   Future<void> _showPickSourceSheet({
