@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/storage/inspection_draft_storage.dart';
 import '../data/inspection_repository.dart';
 
 part 'inspection_state.dart';
@@ -11,17 +13,19 @@ class InspectionCubit extends Cubit<InspectionState> {
   InspectionCubit({required InspectionRepository repository, required int containerId})
       : _repo = repository,
         _containerId = containerId,
+        _drafts = InspectionDraftStorage(),
         super(const InspectionState.loading());
 
   final InspectionRepository _repo;
   final int _containerId;
+  final InspectionDraftStorage _drafts;
 
   Future<void> load() async {
     emit(const InspectionState.loading());
     try {
       final res = await _repo.getContainer(_containerId);
       final existingNotes = (res.inspection?.notes ?? '').trim();
-      emit(InspectionState.ready(
+      InspectionReady next = InspectionState.ready(
         arrival: res.arrival,
         container: res.container,
         hasExistingInspection: res.inspection != null,
@@ -42,29 +46,94 @@ class InspectionCubit extends Cubit<InspectionState> {
         photoInsideUrl: res.inspection?.photoInsideUrl,
         photoSealUrl: res.inspection?.photoSealUrl,
         photoDamageUrl: res.inspection?.photoDamageUrl,
-      ));
+      ) as InspectionReady;
+
+      final draft = await _drafts.load(_containerId);
+      if (draft != null) {
+        next = _applyDraft(next, draft);
+      }
+
+      emit(next);
     } catch (e) {
       emit(InspectionState.failure(e.toString()));
     }
   }
 
+  InspectionReady _applyDraft(InspectionReady base, InspectionDraft draft) {
+    File? fileOrNull(String? path) {
+      if (path == null || path.trim().isEmpty) return null;
+      final f = File(path);
+      return f.existsSync() ? f : null;
+    }
+
+    return base.copyWith(
+      sealCode: (draft.sealCode ?? base.sealCode),
+      driverName: (draft.driverName ?? base.driverName),
+      notes: (draft.notes ?? base.notes),
+      notesAuto: (draft.notesAuto ?? base.notesAuto),
+      issuesLeft: draft.issuesLeft ?? base.issuesLeft,
+      issuesRight: draft.issuesRight ?? base.issuesRight,
+      issuesFront: draft.issuesFront ?? base.issuesFront,
+      issuesBack: draft.issuesBack ?? base.issuesBack,
+      issuesInside: draft.issuesInside ?? base.issuesInside,
+      issuesSeal: draft.issuesSeal ?? base.issuesSeal,
+      photoLeft: fileOrNull(draft.photoLeftPath) ?? base.photoLeft,
+      photoRight: fileOrNull(draft.photoRightPath) ?? base.photoRight,
+      photoFront: fileOrNull(draft.photoFrontPath) ?? base.photoFront,
+      photoBack: fileOrNull(draft.photoBackPath) ?? base.photoBack,
+      photoInside: fileOrNull(draft.photoInsidePath) ?? base.photoInside,
+      photoSeal: fileOrNull(draft.photoSealPath) ?? base.photoSeal,
+      photoDamage: fileOrNull(draft.photoDamagePath) ?? base.photoDamage,
+    );
+  }
+
+  Future<void> _saveDraft(InspectionReady s) async {
+    final draft = InspectionDraft(
+      containerId: _containerId,
+      sealCode: s.sealCode,
+      driverName: s.driverName,
+      notes: s.notes,
+      notesAuto: s.notesAuto,
+      issuesLeft: s.issuesLeft,
+      issuesRight: s.issuesRight,
+      issuesFront: s.issuesFront,
+      issuesBack: s.issuesBack,
+      issuesInside: s.issuesInside,
+      issuesSeal: s.issuesSeal,
+      photoLeftPath: s.photoLeft?.path,
+      photoRightPath: s.photoRight?.path,
+      photoFrontPath: s.photoFront?.path,
+      photoBackPath: s.photoBack?.path,
+      photoInsidePath: s.photoInside?.path,
+      photoSealPath: s.photoSeal?.path,
+      photoDamagePath: s.photoDamage?.path,
+    );
+    await _drafts.save(draft);
+  }
+
   void setSealCode(String sealCode) {
     final s = state;
     if (s is! InspectionReady) return;
-    emit(s.copyWith(sealCode: sealCode));
+    final next = s.copyWith(sealCode: sealCode);
+    emit(next);
+    unawaited(_saveDraft(next));
   }
 
   void setNotes(String notes) {
     final s = state;
     if (s is! InspectionReady) return;
     final nextAuto = notes.trim().isEmpty;
-    emit(s.copyWith(notes: notes, notesAuto: nextAuto));
+    final next = s.copyWith(notes: notes, notesAuto: nextAuto);
+    emit(next);
+    unawaited(_saveDraft(next));
   }
 
   void setDriverName(String name) {
     final s = state;
     if (s is! InspectionReady) return;
-    emit(s.copyWith(driverName: name));
+    final next = s.copyWith(driverName: name);
+    emit(next);
+    unawaited(_saveDraft(next));
   }
 
   String buildAutoNotes() {
@@ -76,7 +145,9 @@ class InspectionCubit extends Cubit<InspectionState> {
   void applyAutoNotes() {
     final s = state;
     if (s is! InspectionReady) return;
-    emit(s.copyWith(notes: _buildAutoNotes(s), notesAuto: true));
+    final next = s.copyWith(notes: _buildAutoNotes(s), notesAuto: true);
+    emit(next);
+    unawaited(_saveDraft(next));
   }
 
   String _buildAutoNotes(InspectionReady s) {
@@ -114,22 +185,47 @@ class InspectionCubit extends Cubit<InspectionState> {
     final next = s.toggleIssue(side, issue);
     if (!next.notesAuto) {
       emit(next);
+      unawaited(_saveDraft(next));
       return;
     }
     final autoNotes = _buildAutoNotes(next);
-    emit(next.copyWith(notes: autoNotes, notesAuto: true));
+    final finalNext = next.copyWith(notes: autoNotes, notesAuto: true);
+    emit(finalNext);
+    unawaited(_saveDraft(finalNext));
   }
 
-  void setPhoto(InspectionSide side, File photo) {
+  Future<void> setPhoto(InspectionSide side, File photo) async {
     final s = state;
     if (s is! InspectionReady) return;
-    emit(s.copyWithPhoto(side, photo));
+    final slot = _drafts.slotForSide(side);
+    File nextPhoto = photo;
+    try {
+      nextPhoto = await _drafts.persistPhoto(containerId: _containerId, slot: slot, source: photo);
+    } catch (_) {}
+
+    final next = s.copyWithPhoto(side, nextPhoto);
+    emit(next);
+    unawaited(_saveDraft(next));
   }
 
-  void setDamagePhoto(File? photo) {
+  Future<void> setDamagePhoto(File? photo) async {
     final s = state;
     if (s is! InspectionReady) return;
-    emit(s.copyWith(photoDamage: photo));
+    if (photo == null) {
+      final next = s.copyWith(photoDamage: null);
+      emit(next);
+      unawaited(_saveDraft(next));
+      return;
+    }
+
+    File nextPhoto = photo;
+    try {
+      nextPhoto = await _drafts.persistPhoto(containerId: _containerId, slot: 'damage', source: photo);
+    } catch (_) {}
+
+    final next = s.copyWith(photoDamage: nextPhoto);
+    emit(next);
+    unawaited(_saveDraft(next));
   }
 
   String _deriveStatus(InspectionReady s) {
@@ -186,6 +282,7 @@ class InspectionCubit extends Cubit<InspectionState> {
         issuesInside: s.issuesInside,
         issuesSeal: s.issuesSeal,
       );
+      await _drafts.clear(_containerId);
       emit(s.copyWith(submitting: false, submitted: true));
     } catch (e) {
       emit(s.copyWith(submitting: false, error: e.toString()));
