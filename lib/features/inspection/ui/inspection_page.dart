@@ -60,32 +60,77 @@ class _InspectionViewState extends State<_InspectionView> {
     super.dispose();
   }
 
-  Future<void> _takePhoto(InspectionSide side) async {
+  Future<void> _pickPhoto(InspectionSide side, ImageSource source) async {
     final cubit = context.read<InspectionCubit>();
     final picker = ImagePicker();
     final xfile = await picker.pickImage(
-      source: ImageSource.camera,
+      source: source,
       imageQuality: 75,
       maxWidth: 1600,
       maxHeight: 1600,
       requestFullMetadata: false,
     );
     if (!mounted || xfile == null) return;
-    cubit.setPhoto(side, File(xfile.path));
+    await cubit.setPhoto(side, File(xfile.path));
   }
 
-  Future<void> _takeDamagePhoto() async {
+  Future<void> _pickDamagePhoto(ImageSource source) async {
     final cubit = context.read<InspectionCubit>();
     final picker = ImagePicker();
     final xfile = await picker.pickImage(
-      source: ImageSource.camera,
+      source: source,
       imageQuality: 75,
       maxWidth: 1600,
       maxHeight: 1600,
       requestFullMetadata: false,
     );
     if (!mounted || xfile == null) return;
-    cubit.setDamagePhoto(File(xfile.path));
+    await cubit.setDamagePhoto(File(xfile.path));
+  }
+
+  Future<void> _showPickSourceSheet({
+    required String title,
+    required Future<void> Function() onCamera,
+    required Future<void> Function() onGallery,
+  }) async {
+    if (!mounted) return;
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                const SizedBox(height: 12),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.photo_camera_rounded),
+                  title: const Text('Ambil dari Kamera'),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await onCamera();
+                  },
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.photo_library_rounded),
+                  title: const Text('Ambil dari Album'),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await onGallery();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   String _issueLabel(String key) {
@@ -323,7 +368,11 @@ class _InspectionViewState extends State<_InspectionView> {
                                   child: _photoTile(
                                     label: 'Foto Depan',
                                     orientationHint: 'PORTRAIT',
-                                    onTap: () => _takePhoto(InspectionSide.front),
+                                    onTap: () => _showPickSourceSheet(
+                                      title: 'Foto Depan',
+                                      onCamera: () => _pickPhoto(InspectionSide.front, ImageSource.camera),
+                                      onGallery: () => _pickPhoto(InspectionSide.front, ImageSource.gallery),
+                                    ),
                                     localFile: s.photoFront,
                                     remoteUrl: s.photoFrontUrl,
                                   ),
@@ -337,7 +386,11 @@ class _InspectionViewState extends State<_InspectionView> {
                                         child: _photoTile(
                                           label: 'Kiri',
                                           orientationHint: 'LANDSCAPE',
-                                          onTap: () => _takePhoto(InspectionSide.left),
+                                          onTap: () => _showPickSourceSheet(
+                                            title: 'Foto Kiri',
+                                            onCamera: () => _pickPhoto(InspectionSide.left, ImageSource.camera),
+                                            onGallery: () => _pickPhoto(InspectionSide.left, ImageSource.gallery),
+                                          ),
                                           localFile: s.photoLeft,
                                           remoteUrl: s.photoLeftUrl,
                                         ),
@@ -347,7 +400,11 @@ class _InspectionViewState extends State<_InspectionView> {
                                         child: _photoTile(
                                           label: 'Kanan',
                                           orientationHint: 'LANDSCAPE',
-                                          onTap: () => _takePhoto(InspectionSide.right),
+                                          onTap: () => _showPickSourceSheet(
+                                            title: 'Foto Kanan',
+                                            onCamera: () => _pickPhoto(InspectionSide.right, ImageSource.camera),
+                                            onGallery: () => _pickPhoto(InspectionSide.right, ImageSource.gallery),
+                                          ),
                                           localFile: s.photoRight,
                                           remoteUrl: s.photoRightUrl,
                                         ),
@@ -357,7 +414,11 @@ class _InspectionViewState extends State<_InspectionView> {
                                         child: _photoTile(
                                           label: 'Dalam',
                                           orientationHint: 'PORTRAIT',
-                                          onTap: () => _takePhoto(InspectionSide.inside),
+                                          onTap: () => _showPickSourceSheet(
+                                            title: 'Foto Dalam',
+                                            onCamera: () => _pickPhoto(InspectionSide.inside, ImageSource.camera),
+                                            onGallery: () => _pickPhoto(InspectionSide.inside, ImageSource.gallery),
+                                          ),
                                           localFile: s.photoInside,
                                           remoteUrl: s.photoInsideUrl,
                                         ),
@@ -367,7 +428,11 @@ class _InspectionViewState extends State<_InspectionView> {
                                         child: _photoTile(
                                           label: 'Foto Seal',
                                           orientationHint: 'PORTRAIT',
-                                          onTap: () => _takePhoto(InspectionSide.seal),
+                                          onTap: () => _showPickSourceSheet(
+                                            title: 'Foto Seal',
+                                            onCamera: () => _pickPhoto(InspectionSide.seal, ImageSource.camera),
+                                            onGallery: () => _pickPhoto(InspectionSide.seal, ImageSource.gallery),
+                                          ),
                                           localFile: s.photoSeal,
                                           remoteUrl: s.photoSealUrl,
                                         ),
@@ -381,7 +446,11 @@ class _InspectionViewState extends State<_InspectionView> {
                                   child: _photoTile(
                                     label: 'Belakang',
                                     orientationHint: 'PORTRAIT',
-                                    onTap: () => _takePhoto(InspectionSide.back),
+                                    onTap: () => _showPickSourceSheet(
+                                      title: 'Foto Belakang',
+                                      onCamera: () => _pickPhoto(InspectionSide.back, ImageSource.camera),
+                                      onGallery: () => _pickPhoto(InspectionSide.back, ImageSource.gallery),
+                                    ),
                                     localFile: s.photoBack,
                                     remoteUrl: s.photoBackUrl,
                                   ),
@@ -452,7 +521,11 @@ class _InspectionViewState extends State<_InspectionView> {
                             child: _photoTile(
                               label: 'Foto Detail Kerusakan (Optional)',
                               orientationHint: 'OPTIONAL',
-                              onTap: _takeDamagePhoto,
+                              onTap: () => _showPickSourceSheet(
+                                title: 'Foto Detail Kerusakan',
+                                onCamera: () => _pickDamagePhoto(ImageSource.camera),
+                                onGallery: () => _pickDamagePhoto(ImageSource.gallery),
+                              ),
                               localFile: s.photoDamage,
                               remoteUrl: s.photoDamageUrl,
                               onClear: s.photoDamage != null ? () => context.read<InspectionCubit>().setDamagePhoto(null) : null,
