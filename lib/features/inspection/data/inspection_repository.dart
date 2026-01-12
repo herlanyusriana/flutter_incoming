@@ -23,7 +23,9 @@ class InspectionRepository {
     required File? photoBack,
     required File? photoInside,
     required File? photoSeal,
-    required File? photoDamage,
+    required File? photoDamage1,
+    required File? photoDamage2,
+    required File? photoDamage3,
     required List<String> issuesLeft,
     required List<String> issuesRight,
     required List<String> issuesFront,
@@ -54,7 +56,9 @@ class InspectionRepository {
         'photo_back': photoBack,
         'photo_inside': photoInside,
         'photo_seal': photoSeal,
-        'photo_damage': photoDamage,
+        'photo_damage_1': photoDamage1,
+        'photo_damage_2': photoDamage2,
+        'photo_damage_3': photoDamage3,
       },
     );
   }
@@ -133,7 +137,9 @@ class Inspection {
     required this.photoBackUrl,
     required this.photoInsideUrl,
     required this.photoSealUrl,
-    required this.photoDamageUrl,
+    required this.photoDamage1Url,
+    required this.photoDamage2Url,
+    required this.photoDamage3Url,
   });
 
   final String? sealCode;
@@ -151,7 +157,9 @@ class Inspection {
   final String? photoBackUrl;
   final String? photoInsideUrl;
   final String? photoSealUrl;
-  final String? photoDamageUrl;
+  final String? photoDamage1Url;
+  final String? photoDamage2Url;
+  final String? photoDamage3Url;
 
   factory Inspection.fromJson(Map<String, dynamic> json) {
     return Inspection(
@@ -170,7 +178,9 @@ class Inspection {
       photoBackUrl: json['photo_back_url'] as String?,
       photoInsideUrl: json['photo_inside_url'] as String?,
       photoSealUrl: json['photo_seal_url'] as String?,
-      photoDamageUrl: json['photo_damage_url'] as String?,
+      photoDamage1Url: (json['photo_damage_1_url'] as String?) ?? (json['photo_damage_url'] as String?),
+      photoDamage2Url: json['photo_damage_2_url'] as String?,
+      photoDamage3Url: json['photo_damage_3_url'] as String?,
     );
   }
 }

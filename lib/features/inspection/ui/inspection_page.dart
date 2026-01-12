@@ -78,7 +78,7 @@ class _InspectionViewState extends State<_InspectionView> {
     await cubit.setPhoto(side, compressed);
   }
 
-  Future<void> _pickDamagePhoto(ImageSource source) async {
+  Future<void> _pickDamagePhoto(int index, ImageSource source) async {
     final cubit = context.read<InspectionCubit>();
     final picker = ImagePicker();
     final xfile = await picker.pickImage(
@@ -91,7 +91,7 @@ class _InspectionViewState extends State<_InspectionView> {
     if (!mounted || xfile == null) return;
     final compressed = await _compressor.compress(File(xfile.path), maxDimension: 1280, quality: 60);
     if (!mounted) return;
-    await cubit.setDamagePhoto(compressed);
+    await cubit.setDamagePhoto(index, compressed);
   }
 
   Future<void> _showPickSourceSheet({
@@ -522,20 +522,62 @@ class _InspectionViewState extends State<_InspectionView> {
                             }).toList(),
                           ),
                           const SizedBox(height: 14),
-                          SizedBox(
-                            height: 170,
-                            child: _photoTile(
-                              label: 'Foto Detail Kerusakan (Optional)',
-                              orientationHint: 'OPTIONAL',
-                              onTap: () => _showPickSourceSheet(
-                                title: 'Foto Detail Kerusakan',
-                                onCamera: () => _pickDamagePhoto(ImageSource.camera),
-                                onGallery: () => _pickDamagePhoto(ImageSource.gallery),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  height: 150,
+                                  child: _photoTile(
+                                    label: 'Detail #1 (Optional)',
+                                    orientationHint: 'OPTIONAL',
+                                    onTap: () => _showPickSourceSheet(
+                                      title: 'Foto Detail Kerusakan #1',
+                                      onCamera: () => _pickDamagePhoto(1, ImageSource.camera),
+                                      onGallery: () => _pickDamagePhoto(1, ImageSource.gallery),
+                                    ),
+                                    localFile: s.photoDamage1,
+                                    remoteUrl: s.photoDamage1Url,
+                                    onClear: s.photoDamage1 != null ? () => context.read<InspectionCubit>().setDamagePhoto(1, null) : null,
+                                  ),
+                                ),
                               ),
-                              localFile: s.photoDamage,
-                              remoteUrl: s.photoDamageUrl,
-                              onClear: s.photoDamage != null ? () => context.read<InspectionCubit>().setDamagePhoto(null) : null,
-                            ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 150,
+                                  child: _photoTile(
+                                    label: 'Detail #2 (Optional)',
+                                    orientationHint: 'OPTIONAL',
+                                    onTap: () => _showPickSourceSheet(
+                                      title: 'Foto Detail Kerusakan #2',
+                                      onCamera: () => _pickDamagePhoto(2, ImageSource.camera),
+                                      onGallery: () => _pickDamagePhoto(2, ImageSource.gallery),
+                                    ),
+                                    localFile: s.photoDamage2,
+                                    remoteUrl: s.photoDamage2Url,
+                                    onClear: s.photoDamage2 != null ? () => context.read<InspectionCubit>().setDamagePhoto(2, null) : null,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 150,
+                                  child: _photoTile(
+                                    label: 'Detail #3 (Optional)',
+                                    orientationHint: 'OPTIONAL',
+                                    onTap: () => _showPickSourceSheet(
+                                      title: 'Foto Detail Kerusakan #3',
+                                      onCamera: () => _pickDamagePhoto(3, ImageSource.camera),
+                                      onGallery: () => _pickDamagePhoto(3, ImageSource.gallery),
+                                    ),
+                                    localFile: s.photoDamage3,
+                                    remoteUrl: s.photoDamage3Url,
+                                    onClear: s.photoDamage3 != null ? () => context.read<InspectionCubit>().setDamagePhoto(3, null) : null,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),

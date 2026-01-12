@@ -25,7 +25,9 @@ class InspectionDraft {
     this.photoBackPath,
     this.photoInsidePath,
     this.photoSealPath,
-    this.photoDamagePath,
+    this.photoDamage1Path,
+    this.photoDamage2Path,
+    this.photoDamage3Path,
   });
 
   final int containerId;
@@ -45,7 +47,9 @@ class InspectionDraft {
   final String? photoBackPath;
   final String? photoInsidePath;
   final String? photoSealPath;
-  final String? photoDamagePath;
+  final String? photoDamage1Path;
+  final String? photoDamage2Path;
+  final String? photoDamage3Path;
 
   Map<String, dynamic> toJson() => {
         'container_id': containerId,
@@ -65,7 +69,9 @@ class InspectionDraft {
         'photo_back_path': photoBackPath,
         'photo_inside_path': photoInsidePath,
         'photo_seal_path': photoSealPath,
-        'photo_damage_path': photoDamagePath,
+        'photo_damage_1_path': photoDamage1Path,
+        'photo_damage_2_path': photoDamage2Path,
+        'photo_damage_3_path': photoDamage3Path,
       };
 
   static InspectionDraft fromJson(Map<String, dynamic> json) {
@@ -95,13 +101,16 @@ class InspectionDraft {
       photoBackPath: json['photo_back_path'] as String?,
       photoInsidePath: json['photo_inside_path'] as String?,
       photoSealPath: json['photo_seal_path'] as String?,
-      photoDamagePath: json['photo_damage_path'] as String?,
+      // Backward compatible: old drafts used single photo_damage_path
+      photoDamage1Path: (json['photo_damage_1_path'] as String?) ?? (json['photo_damage_path'] as String?),
+      photoDamage2Path: json['photo_damage_2_path'] as String?,
+      photoDamage3Path: json['photo_damage_3_path'] as String?,
     );
   }
 }
 
 class InspectionDraftStorage {
-  static const _keyPrefix = 'inspection_draft_v1_';
+  static const _keyPrefix = 'inspection_draft_v2_';
 
   String _key(int containerId) => '$_keyPrefix$containerId';
 
@@ -126,6 +135,9 @@ class InspectionDraftStorage {
   Future<void> clear(int containerId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key(containerId));
+
+    // Best-effort cleanup for old key version
+    await prefs.remove('inspection_draft_v1_$containerId');
 
     final dir = await _draftDir(containerId);
     if (await dir.exists()) {
@@ -177,4 +189,3 @@ class InspectionDraftStorage {
     };
   }
 }
-

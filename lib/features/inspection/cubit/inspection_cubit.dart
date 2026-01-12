@@ -45,7 +45,9 @@ class InspectionCubit extends Cubit<InspectionState> {
         photoBackUrl: res.inspection?.photoBackUrl,
         photoInsideUrl: res.inspection?.photoInsideUrl,
         photoSealUrl: res.inspection?.photoSealUrl,
-        photoDamageUrl: res.inspection?.photoDamageUrl,
+        photoDamage1Url: res.inspection?.photoDamage1Url,
+        photoDamage2Url: res.inspection?.photoDamage2Url,
+        photoDamage3Url: res.inspection?.photoDamage3Url,
       ) as InspectionReady;
 
       final draft = await _drafts.load(_containerId);
@@ -83,7 +85,9 @@ class InspectionCubit extends Cubit<InspectionState> {
       photoBack: fileOrNull(draft.photoBackPath) ?? base.photoBack,
       photoInside: fileOrNull(draft.photoInsidePath) ?? base.photoInside,
       photoSeal: fileOrNull(draft.photoSealPath) ?? base.photoSeal,
-      photoDamage: fileOrNull(draft.photoDamagePath) ?? base.photoDamage,
+      photoDamage1: fileOrNull(draft.photoDamage1Path) ?? base.photoDamage1,
+      photoDamage2: fileOrNull(draft.photoDamage2Path) ?? base.photoDamage2,
+      photoDamage3: fileOrNull(draft.photoDamage3Path) ?? base.photoDamage3,
     );
   }
 
@@ -106,7 +110,9 @@ class InspectionCubit extends Cubit<InspectionState> {
       photoBackPath: s.photoBack?.path,
       photoInsidePath: s.photoInside?.path,
       photoSealPath: s.photoSeal?.path,
-      photoDamagePath: s.photoDamage?.path,
+      photoDamage1Path: s.photoDamage1?.path,
+      photoDamage2Path: s.photoDamage2?.path,
+      photoDamage3Path: s.photoDamage3?.path,
     );
     await _drafts.save(draft);
   }
@@ -208,11 +214,11 @@ class InspectionCubit extends Cubit<InspectionState> {
     unawaited(_saveDraft(next));
   }
 
-  Future<void> setDamagePhoto(File? photo) async {
+  Future<void> setDamagePhoto(int index, File? photo) async {
     final s = state;
     if (s is! InspectionReady) return;
     if (photo == null) {
-      final next = s.copyWith(photoDamage: null);
+      final next = s.copyWithDamagePhoto(index, null);
       emit(next);
       unawaited(_saveDraft(next));
       return;
@@ -220,10 +226,10 @@ class InspectionCubit extends Cubit<InspectionState> {
 
     File nextPhoto = photo;
     try {
-      nextPhoto = await _drafts.persistPhoto(containerId: _containerId, slot: 'damage', source: photo);
+      nextPhoto = await _drafts.persistPhoto(containerId: _containerId, slot: 'damage$index', source: photo);
     } catch (_) {}
 
-    final next = s.copyWith(photoDamage: nextPhoto);
+    final next = s.copyWithDamagePhoto(index, nextPhoto);
     emit(next);
     unawaited(_saveDraft(next));
   }
@@ -274,7 +280,9 @@ class InspectionCubit extends Cubit<InspectionState> {
         photoBack: s.photoBack,
         photoInside: s.photoInside,
         photoSeal: s.photoSeal,
-        photoDamage: s.photoDamage,
+        photoDamage1: s.photoDamage1,
+        photoDamage2: s.photoDamage2,
+        photoDamage3: s.photoDamage3,
         issuesLeft: s.issuesLeft,
         issuesRight: s.issuesRight,
         issuesFront: s.issuesFront,

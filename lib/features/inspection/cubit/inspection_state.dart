@@ -24,14 +24,18 @@ sealed class InspectionState extends Equatable {
     String? photoBackUrl,
     String? photoInsideUrl,
     String? photoSealUrl,
-    String? photoDamageUrl,
+    String? photoDamage1Url,
+    String? photoDamage2Url,
+    String? photoDamage3Url,
     File? photoLeft,
     File? photoRight,
     File? photoFront,
     File? photoBack,
     File? photoInside,
     File? photoSeal,
-    File? photoDamage,
+    File? photoDamage1,
+    File? photoDamage2,
+    File? photoDamage3,
     bool submitting,
     bool submitted,
     String? error,
@@ -78,14 +82,18 @@ class InspectionReady extends InspectionState {
     this.photoBackUrl,
     this.photoInsideUrl,
     this.photoSealUrl,
-    this.photoDamageUrl,
+    this.photoDamage1Url,
+    this.photoDamage2Url,
+    this.photoDamage3Url,
     this.photoLeft,
     this.photoRight,
     this.photoFront,
     this.photoBack,
     this.photoInside,
     this.photoSeal,
-    this.photoDamage,
+    this.photoDamage1,
+    this.photoDamage2,
+    this.photoDamage3,
     this.submitting = false,
     this.submitted = false,
     this.error,
@@ -110,14 +118,18 @@ class InspectionReady extends InspectionState {
   final String? photoBackUrl;
   final String? photoInsideUrl;
   final String? photoSealUrl;
-  final String? photoDamageUrl;
+  final String? photoDamage1Url;
+  final String? photoDamage2Url;
+  final String? photoDamage3Url;
   final File? photoLeft;
   final File? photoRight;
   final File? photoFront;
   final File? photoBack;
   final File? photoInside;
   final File? photoSeal;
-  final File? photoDamage;
+  final File? photoDamage1;
+  final File? photoDamage2;
+  final File? photoDamage3;
   final bool submitting;
   final bool submitted;
   final String? error;
@@ -139,14 +151,18 @@ class InspectionReady extends InspectionState {
     String? photoBackUrl,
     String? photoInsideUrl,
     String? photoSealUrl,
-    String? photoDamageUrl,
+    String? photoDamage1Url,
+    String? photoDamage2Url,
+    String? photoDamage3Url,
     File? photoLeft,
     File? photoRight,
     File? photoFront,
     File? photoBack,
     File? photoInside,
     File? photoSeal,
-    File? photoDamage,
+    File? photoDamage1,
+    File? photoDamage2,
+    File? photoDamage3,
     bool? submitting,
     bool? submitted,
     String? error,
@@ -171,18 +187,31 @@ class InspectionReady extends InspectionState {
       photoBackUrl: photoBackUrl ?? this.photoBackUrl,
       photoInsideUrl: photoInsideUrl ?? this.photoInsideUrl,
       photoSealUrl: photoSealUrl ?? this.photoSealUrl,
-      photoDamageUrl: photoDamageUrl ?? this.photoDamageUrl,
+      photoDamage1Url: photoDamage1Url ?? this.photoDamage1Url,
+      photoDamage2Url: photoDamage2Url ?? this.photoDamage2Url,
+      photoDamage3Url: photoDamage3Url ?? this.photoDamage3Url,
       photoLeft: photoLeft ?? this.photoLeft,
       photoRight: photoRight ?? this.photoRight,
       photoFront: photoFront ?? this.photoFront,
       photoBack: photoBack ?? this.photoBack,
       photoInside: photoInside ?? this.photoInside,
       photoSeal: photoSeal ?? this.photoSeal,
-      photoDamage: photoDamage ?? this.photoDamage,
+      photoDamage1: photoDamage1 ?? this.photoDamage1,
+      photoDamage2: photoDamage2 ?? this.photoDamage2,
+      photoDamage3: photoDamage3 ?? this.photoDamage3,
       submitting: submitting ?? this.submitting,
       submitted: submitted ?? this.submitted,
       error: error,
     );
+  }
+
+  InspectionReady copyWithDamagePhoto(int index, File? photo) {
+    return switch (index) {
+      1 => copyWith(photoDamage1: photo),
+      2 => copyWith(photoDamage2: photo),
+      3 => copyWith(photoDamage3: photo),
+      _ => this,
+    };
   }
 
   InspectionReady copyWithPhoto(InspectionSide side, File photo) {
@@ -238,14 +267,18 @@ class InspectionReady extends InspectionState {
         photoBackUrl,
         photoInsideUrl,
         photoSealUrl,
-        photoDamageUrl,
+        photoDamage1Url,
+        photoDamage2Url,
+        photoDamage3Url,
         photoLeft?.path,
         photoRight?.path,
         photoFront?.path,
         photoBack?.path,
         photoInside?.path,
         photoSeal?.path,
-        photoDamage?.path,
+        photoDamage1?.path,
+        photoDamage2?.path,
+        photoDamage3?.path,
         submitting,
         submitted,
         error,
