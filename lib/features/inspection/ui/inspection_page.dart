@@ -67,13 +67,20 @@ class _InspectionViewState extends State<_InspectionView> {
     final picker = ImagePicker();
     final xfile = await picker.pickImage(
       source: source,
-      imageQuality: 65,
-      maxWidth: 1280,
-      maxHeight: 1280,
+      imageQuality: 55,
+      maxWidth: 1024,
+      maxHeight: 1024,
       requestFullMetadata: false,
     );
     if (!mounted || xfile == null) return;
-    final compressed = await _compressor.compress(File(xfile.path), maxDimension: 1280, quality: 60);
+    final compressed = await _compressor.compress(
+      File(xfile.path),
+      maxDimension: 1024,
+      quality: 55,
+      maxBytes: 110 * 1024,
+      minDimension: 720,
+      minQuality: 35,
+    );
     if (!mounted) return;
     await cubit.setPhoto(side, compressed);
   }
@@ -83,13 +90,20 @@ class _InspectionViewState extends State<_InspectionView> {
     final picker = ImagePicker();
     final xfile = await picker.pickImage(
       source: source,
-      imageQuality: 65,
-      maxWidth: 1280,
-      maxHeight: 1280,
+      imageQuality: 55,
+      maxWidth: 1024,
+      maxHeight: 1024,
       requestFullMetadata: false,
     );
     if (!mounted || xfile == null) return;
-    final compressed = await _compressor.compress(File(xfile.path), maxDimension: 1280, quality: 60);
+    final compressed = await _compressor.compress(
+      File(xfile.path),
+      maxDimension: 1024,
+      quality: 55,
+      maxBytes: 110 * 1024,
+      minDimension: 720,
+      minQuality: 35,
+    );
     if (!mounted) return;
     await cubit.setDamagePhoto(index, compressed);
   }
@@ -360,111 +374,98 @@ class _InspectionViewState extends State<_InspectionView> {
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(12),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          const gap = 10.0;
-                          final gridHeight = constraints.maxWidth * 0.92;
-
-                          return SizedBox(
-                            height: gridHeight,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 35,
-                                  child: _photoTile(
-                                    label: 'Foto Depan',
-                                    orientationHint: 'PORTRAIT',
-                                    onTap: () => _showPickSourceSheet(
-                                      title: 'Foto Depan',
-                                      onCamera: () => _pickPhoto(InspectionSide.front, ImageSource.camera),
-                                      onGallery: () => _pickPhoto(InspectionSide.front, ImageSource.gallery),
-                                    ),
-                                    localFile: s.photoFront,
-                                    remoteUrl: s.photoFrontUrl,
-                                  ),
-                                ),
-                                const SizedBox(width: gap),
-                                Expanded(
-                                  flex: 30,
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                        child: _photoTile(
-                                          label: 'Kiri',
-                                          orientationHint: 'LANDSCAPE',
-                                          onTap: () => _showPickSourceSheet(
-                                            title: 'Foto Kiri',
-                                            onCamera: () => _pickPhoto(InspectionSide.left, ImageSource.camera),
-                                            onGallery: () => _pickPhoto(InspectionSide.left, ImageSource.gallery),
-                                          ),
-                                          localFile: s.photoLeft,
-                                          remoteUrl: s.photoLeftUrl,
-                                        ),
-                                      ),
-                                      const SizedBox(height: gap),
-                                      Expanded(
-                                        child: _photoTile(
-                                          label: 'Kanan',
-                                          orientationHint: 'LANDSCAPE',
-                                          onTap: () => _showPickSourceSheet(
-                                            title: 'Foto Kanan',
-                                            onCamera: () => _pickPhoto(InspectionSide.right, ImageSource.camera),
-                                            onGallery: () => _pickPhoto(InspectionSide.right, ImageSource.gallery),
-                                          ),
-                                          localFile: s.photoRight,
-                                          remoteUrl: s.photoRightUrl,
-                                        ),
-                                      ),
-                                      const SizedBox(height: gap),
-                                      Expanded(
-                                        child: _photoTile(
-                                          label: 'Dalam',
-                                          orientationHint: 'PORTRAIT',
-                                          onTap: () => _showPickSourceSheet(
-                                            title: 'Foto Dalam',
-                                            onCamera: () => _pickPhoto(InspectionSide.inside, ImageSource.camera),
-                                            onGallery: () => _pickPhoto(InspectionSide.inside, ImageSource.gallery),
-                                          ),
-                                          localFile: s.photoInside,
-                                          remoteUrl: s.photoInsideUrl,
-                                        ),
-                                      ),
-                                      const SizedBox(height: gap),
-                                      Expanded(
-                                        child: _photoTile(
-                                          label: 'Foto Seal',
-                                          orientationHint: 'PORTRAIT',
-                                          onTap: () => _showPickSourceSheet(
-                                            title: 'Foto Seal',
-                                            onCamera: () => _pickPhoto(InspectionSide.seal, ImageSource.camera),
-                                            onGallery: () => _pickPhoto(InspectionSide.seal, ImageSource.gallery),
-                                          ),
-                                          localFile: s.photoSeal,
-                                          remoteUrl: s.photoSealUrl,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: gap),
-                                Expanded(
-                                  flex: 35,
-                                  child: _photoTile(
-                                    label: 'Belakang',
-                                    orientationHint: 'PORTRAIT',
-                                    onTap: () => _showPickSourceSheet(
-                                      title: 'Foto Belakang',
-                                      onCamera: () => _pickPhoto(InspectionSide.back, ImageSource.camera),
-                                      onGallery: () => _pickPhoto(InspectionSide.back, ImageSource.gallery),
-                                    ),
-                                    localFile: s.photoBack,
-                                    remoteUrl: s.photoBackUrl,
-                                  ),
-                                ),
-                              ],
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 180,
+                            child: _photoTile(
+                              label: 'Foto Depan',
+                              orientationHint: 'PORTRAIT',
+                              onTap: () => _showPickSourceSheet(
+                                title: 'Foto Depan',
+                                onCamera: () => _pickPhoto(InspectionSide.front, ImageSource.camera),
+                                onGallery: () => _pickPhoto(InspectionSide.front, ImageSource.gallery),
+                              ),
+                              localFile: s.photoFront,
+                              remoteUrl: s.photoFrontUrl,
                             ),
-                          );
-                        },
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            height: 180,
+                            child: _photoTile(
+                              label: 'Belakang',
+                              orientationHint: 'PORTRAIT',
+                              onTap: () => _showPickSourceSheet(
+                                title: 'Foto Belakang',
+                                onCamera: () => _pickPhoto(InspectionSide.back, ImageSource.camera),
+                                onGallery: () => _pickPhoto(InspectionSide.back, ImageSource.gallery),
+                              ),
+                              localFile: s.photoBack,
+                              remoteUrl: s.photoBackUrl,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            height: 180,
+                            child: _photoTile(
+                              label: 'Kiri',
+                              orientationHint: 'LANDSCAPE',
+                              onTap: () => _showPickSourceSheet(
+                                title: 'Foto Kiri',
+                                onCamera: () => _pickPhoto(InspectionSide.left, ImageSource.camera),
+                                onGallery: () => _pickPhoto(InspectionSide.left, ImageSource.gallery),
+                              ),
+                              localFile: s.photoLeft,
+                              remoteUrl: s.photoLeftUrl,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            height: 180,
+                            child: _photoTile(
+                              label: 'Kanan',
+                              orientationHint: 'LANDSCAPE',
+                              onTap: () => _showPickSourceSheet(
+                                title: 'Foto Kanan',
+                                onCamera: () => _pickPhoto(InspectionSide.right, ImageSource.camera),
+                                onGallery: () => _pickPhoto(InspectionSide.right, ImageSource.gallery),
+                              ),
+                              localFile: s.photoRight,
+                              remoteUrl: s.photoRightUrl,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            height: 180,
+                            child: _photoTile(
+                              label: 'Dalam',
+                              orientationHint: 'PORTRAIT',
+                              onTap: () => _showPickSourceSheet(
+                                title: 'Foto Dalam',
+                                onCamera: () => _pickPhoto(InspectionSide.inside, ImageSource.camera),
+                                onGallery: () => _pickPhoto(InspectionSide.inside, ImageSource.gallery),
+                              ),
+                              localFile: s.photoInside,
+                              remoteUrl: s.photoInsideUrl,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            height: 180,
+                            child: _photoTile(
+                              label: 'Foto Seal',
+                              orientationHint: 'PORTRAIT',
+                              onTap: () => _showPickSourceSheet(
+                                title: 'Foto Seal',
+                                onCamera: () => _pickPhoto(InspectionSide.seal, ImageSource.camera),
+                                onGallery: () => _pickPhoto(InspectionSide.seal, ImageSource.gallery),
+                              ),
+                              localFile: s.photoSeal,
+                              remoteUrl: s.photoSealUrl,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
