@@ -11,12 +11,11 @@ class AuthRepository {
 
   Future<String?> getToken() => _tokenStorage.read();
 
-  Future<void> login({required String email, required String password, String? deviceName}) async {
+  Future<void> login({required String login, required String password}) async {
     try {
       final res = await _api.postJson('/api/auth/login', {
-        'email': email,
+        'login': login,
         'password': password,
-        'device_name': deviceName ?? 'android',
       });
       final token = res['token'] as String;
       await _tokenStorage.write(token);

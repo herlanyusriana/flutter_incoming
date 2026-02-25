@@ -21,10 +21,10 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  Future<void> login({required String email, required String password}) async {
+  Future<void> login({required String login, required String password}) async {
     emit(const AuthState.loading());
     try {
-      await _authRepository.login(email: email, password: password, deviceName: 'android');
+      await _authRepository.login(login: login, password: password);
       emit(const AuthState.authenticated());
     } catch (e) {
       var msg = e.toString();

@@ -104,11 +104,11 @@ class _LoginPageState extends State<LoginPage> {
                                 TextField(
                                   controller: _emailController,
                                   decoration: const InputDecoration(
-                                    labelText: 'Email',
-                                    prefixIcon: Icon(Icons.alternate_email_rounded),
+                                    labelText: 'Email / Username',
+                                    prefixIcon: Icon(Icons.person_rounded),
                                   ),
-                                  keyboardType: TextInputType.emailAddress,
-                                  autofillHints: const [AutofillHints.email],
+                                  keyboardType: TextInputType.text,
+                                  autofillHints: const [AutofillHints.username],
                                   textInputAction: TextInputAction.next,
                                 ),
                                 const SizedBox(height: 12),
@@ -124,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                                   onSubmitted: (_) {
                                     if (loading) return;
                                     context.read<AuthCubit>().login(
-                                          email: _emailController.text.trim(),
+                                          login: _emailController.text.trim(),
                                           password: _passwordController.text,
                                         );
                                   },
@@ -134,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                                   onPressed: loading
                                       ? null
                                       : () => context.read<AuthCubit>().login(
-                                            email: _emailController.text.trim(),
+                                            login: _emailController.text.trim(),
                                             password: _passwordController.text,
                                           ),
                                   icon: loading
